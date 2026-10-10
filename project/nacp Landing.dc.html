@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<title>nacp · Baca manga, manhwa, manhua & komik lokal berlisensi</title>
+<meta name="description" content="nacp adalah tempat baca komik berlisensi dalam Bahasa Indonesia: manga, manhwa, manhua, dan komik lokal. Gratis dengan iklan, atau Premium tanpa iklan.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"nacp","url":"https://nacp.id","inLanguage":["id","en"],"potentialAction":{"@type":"SearchAction","target":"https://nacp.id/cari?q={q}","query-input":"required name=q"}}</script>
+<style>
+:root,[data-theme="light"]{--bg:#F6F6F4;--surface:#FFFFFF;--surface-2:#EFEFEC;--ink:#16171A;--ink-2:#50545D;--ink-3:#868A93;--line:#E3E3DF;--line-2:#CFCFCA;--accent:#3E7BE6;--accent-text:#2A62C9;--accent-soft:#E7EEFB}
+[data-theme="dark"]{--bg:#0F1013;--surface:#17191D;--surface-2:#1F2127;--ink:#ECEDEF;--ink-2:#A4A8B0;--ink-3:#6F737B;--line:#272A31;--line-2:#363A42;--accent:#3E7BE6;--accent-text:#86ABF2;--accent-soft:#1A2640}
+body{margin:0;background:#0F1013;font-family:'Plus Jakarta Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:var(--accent-text);text-decoration:none}a:hover{text-decoration:underline}
+*{box-sizing:border-box}
+</style>
+</helmet>
+<div ref="{{ rootRef }}" data-theme="{{ theme }}" data-screen-label="Landing" style="min-height:100vh;background:var(--bg);color:var(--ink)">
+
+<header style="position:sticky;top:0;z-index:30;background:var(--bg);border-bottom:1px solid var(--line)">
+  <div style="max-width:1240px;margin:0 auto;padding:12px {{ pad }}px;display:flex;align-items:center;gap:20px">
+    <a href="#top" style="display:flex;align-items:center;gap:8px;color:var(--ink);font-weight:800;font-size:23px;letter-spacing:-0.05em;text-decoration:none"><span style="width:11px;height:11px;background:var(--accent);border-radius:3px"></span>nacp</a>
+    <sc-if value="{{ desktop }}" hint-placeholder-val="{{ true }}">
+      <nav style="display:flex;gap:2px">
+        <sc-for list="{{ nav }}" as="n" hint-placeholder-count="4"><a href="{{ n.href }}" style="padding:8px 12px;font-size:14px;font-weight:600;color:var(--ink-2);text-decoration:none">{{ n.label }}</a></sc-for>
+      </nav>
+    </sc-if>
+    <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+      <button onClick="{{ toggleLang }}" style="height:36px;min-width:42px;border:1px solid var(--line);background:var(--surface);color:var(--ink-2);border-radius:9px;font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer">{{ langLabel }}</button>
+      <button onClick="{{ toggleTheme }}" style="height:36px;padding:0 12px;border:1px solid var(--line);background:var(--surface);color:var(--ink-2);border-radius:9px;font:inherit;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap">{{ themeLabel }}</button>
+      <a href="nacp%20Beranda.dc.html" style="height:36px;padding:0 16px;border-radius:9px;background:var(--accent);color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;text-decoration:none;white-space:nowrap">{{ t.cta }}</a>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+  <section style="max-width:1240px;margin:0 auto;padding:{{ heroPad }}px {{ pad }}px;display:grid;grid-template-columns:{{ heroCols }};gap:48px;align-items:center">
+    <div style="display:flex;flex-direction:column;gap:22px">
+      <span style="align-self:flex-start;padding:6px 12px;border-radius:999px;background:var(--accent-soft);color:var(--accent-text);font-size:13px;font-weight:700">{{ t.badge }}</span>
+      <h1 style="margin:0;font-size:{{ h1 }}px;line-height:0.98;font-weight:800;letter-spacing:-0.05em;text-wrap:balance">{{ t.h1 }}</h1>
+      <p style="margin:0;font-size:18px;line-height:1.6;color:var(--ink-2);max-width:52ch;text-wrap:pretty">{{ t.sub }}</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <a href="nacp%20Beranda.dc.html" style="height:52px;padding:0 24px;border-radius:12px;background:var(--accent);color:#fff;font-size:16px;font-weight:800;display:flex;align-items:center;text-decoration:none">{{ t.cta }}</a>
+        <button onClick="{{ install }}" style="height:52px;padding:0 22px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-size:16px;font-weight:700;cursor:pointer">{{ t.install }}</button>
+      </div>
+      <div style="display:flex;gap:28px;flex-wrap:wrap;padding-top:8px">
+        <sc-for list="{{ stats }}" as="s" hint-placeholder-count="3">
+          <div><div style="font-size:26px;font-weight:800;letter-spacing:-0.03em">{{ s.v }}</div><div style="font-size:13px;color:var(--ink-3)">{{ s.l }}</div></div>
+        </sc-for>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;height:{{ wallH }}px;overflow:hidden;mask-image:linear-gradient(180deg,transparent 0,#000 8%,#000 88%,transparent 100%);-webkit-mask-image:linear-gradient(180deg,transparent 0,#000 8%,#000 88%,transparent 100%)">
+      <sc-for list="{{ wall }}" as="col" hint-placeholder-count="3">
+        <div style="display:flex;flex-direction:column;gap:14px;margin-top:{{ col.offset }}px">
+          <sc-for list="{{ col.items }}" as="c" hint-placeholder-count="3">
+            <a href="{{ c.href }}" style="position:relative;display:block;aspect-ratio:3/4;border-radius:14px;overflow:hidden;background:repeating-linear-gradient(135deg,rgba(255,255,255,0.035) 0 10px,transparent 10px 20px),{{ c.bg }};flex:none">
+              <span style="position:absolute;left:8px;top:8px;padding:3px 7px;border-radius:6px;background:rgba(0,0,0,0.55);color:#fff;font-size:11px;font-weight:700">{{ c.type }}</span>
+              <div style="position:absolute;inset:auto 0 0 0;padding:30px 10px 10px;background:linear-gradient(180deg,rgba(0,0,0,0),rgba(0,0,0,0.85));color:#fff;font-size:13px;font-weight:800;line-height:1.25">{{ c.title }}</div>
+            </a>
+          </sc-for>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section style="max-width:1240px;margin:0 auto;padding:0 {{ pad }}px 72px">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px">
+      <sc-for list="{{ types }}" as="ty" hint-placeholder-count="4">
+        <a href="nacp%20Halaman.dc.html?p=cari" style="display:flex;gap:14px;align-items:center;padding:14px;border-radius:16px;background:var(--surface);border:1px solid var(--line);color:var(--ink);text-decoration:none">
+          <div style="display:flex;flex:none">
+            <sc-for list="{{ ty.covers }}" as="cv" hint-placeholder-count="3"><div style="width:42px;aspect-ratio:3/4;border-radius:7px;margin-right:-14px;border:2px solid var(--surface);background:{{ cv }}"></div></sc-for>
+          </div>
+          <div style="padding-left:18px"><div style="font-size:17px;font-weight:800">{{ ty.label }}</div><div style="font-size:12px;color:var(--ink-3)">{{ ty.sub }}</div></div>
+        </a>
+      </sc-for>
+    </div>
+  </section>
+
+  <section id="fitur" style="background:var(--surface);border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
+    <div style="max-width:1240px;margin:0 auto;padding:80px {{ pad }}px;display:flex;flex-direction:column;gap:40px">
+      <h2 style="margin:0;font-size:{{ h2 }}px;font-weight:800;letter-spacing:-0.04em;max-width:18ch;text-wrap:balance">{{ t.featH }}</h2>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px">
+
+        <div style="padding:22px;border-radius:18px;background:var(--bg);border:1px solid var(--line);display:flex;flex-direction:column;gap:16px">
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <sc-for list="{{ partners }}" as="p" hint-placeholder-count="5"><span style="display:flex;align-items:center;gap:8px;padding:6px 10px 6px 6px;border-radius:9px;background:var(--surface);border:1px solid var(--line);font-size:12px;font-weight:700"><span style="width:22px;height:22px;border-radius:6px;border:1px dashed var(--line-2)"></span>{{ p }}</span></sc-for>
+          </div>
+          <div><div style="font-size:19px;font-weight:800;letter-spacing:-0.02em">{{ t.f1 }}</div><p style="margin:6px 0 0;font-size:14px;line-height:1.6;color:var(--ink-2)">{{ t.f1b }}</p></div>
+        </div>
+
+        <div style="padding:22px;border-radius:18px;background:var(--bg);border:1px solid var(--line);display:flex;flex-direction:column;gap:16px">
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;background:var(--surface-2);border-radius:9px;padding:3px;align-self:flex-start">
+              <sc-for list="{{ qSeg }}" as="o" hint-placeholder-count="2"><button onClick="{{ o.onClick }}" style="height:30px;padding:0 12px;border:0;border-radius:7px;background:{{ o.bg }};color:{{ o.fg }};font:inherit;font-size:12px;font-weight:700;cursor:pointer">{{ o.label }}</button></sc-for>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px"><div style="flex:1;height:8px;border-radius:4px;background:var(--surface-2);overflow:hidden"><div style="height:100%;width:{{ qPct }}%;background:var(--accent)"></div></div><span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--ink-2);min-width:110px">{{ qLabel }}</span></div>
+          </div>
+          <div><div style="font-size:19px;font-weight:800;letter-spacing:-0.02em">{{ t.f2 }}</div><p style="margin:6px 0 0;font-size:14px;line-height:1.6;color:var(--ink-2)">{{ t.f2b }}</p></div>
+        </div>
+
+        <div style="padding:22px;border-radius:18px;background:var(--bg);border:1px solid var(--line);display:flex;flex-direction:column;gap:16px">
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <sc-for list="{{ readerChips }}" as="c" hint-placeholder-count="6"><span style="padding:6px 11px;border-radius:999px;background:var(--surface);border:1px solid var(--line);font-size:12px;font-weight:700;color:var(--ink-2)">{{ c }}</span></sc-for>
+          </div>
+          <div><div style="font-size:19px;font-weight:800;letter-spacing:-0.02em">{{ t.f3 }}</div><p style="margin:6px 0 0;font-size:14px;line-height:1.6;color:var(--ink-2)">{{ t.f3b }}</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="aplikasi" style="max-width:1240px;margin:0 auto;padding:88px {{ pad }}px;display:grid;grid-template-columns:{{ appCols }};gap:48px;align-items:center">
+    <div style="justify-self:center;width:260px;aspect-ratio:9/19;border-radius:40px;padding:10px;background:#0B0B0C;box-shadow:0 30px 70px rgba(0,0,0,0.35)">
+      <div style="width:100%;height:100%;border-radius:31px;overflow:hidden;background:#0F1013;display:flex;flex-direction:column">
+        <div style="padding:16px 14px 8px;display:flex;align-items:center;gap:6px;color:#ECEDEF;font-weight:800;font-size:16px;letter-spacing:-0.04em"><span style="width:8px;height:8px;border-radius:2px;background:#3E7BE6"></span>nacp</div>
+        <div style="padding:0 14px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <sc-for list="{{ phoneCovers }}" as="c" hint-placeholder-count="6"><div style="aspect-ratio:3/4;border-radius:8px;background:repeating-linear-gradient(135deg,rgba(255,255,255,0.035) 0 6px,transparent 6px 12px),{{ c }}"></div></sc-for>
+        </div>
+        <div style="margin-top:auto;display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid #272A31;padding:10px 0 14px">
+          <sc-for list="{{ phoneNav }}" as="n" hint-placeholder-count="4"><span style="text-align:center;font-size:9px;font-weight:700;color:{{ n.fg }}">{{ n.l }}</span></sc-for>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:20px">
+      <h2 style="margin:0;font-size:{{ h2 }}px;font-weight:800;letter-spacing:-0.04em;text-wrap:balance">{{ t.appH }}</h2>
+      <p style="margin:0;font-size:16px;line-height:1.6;color:var(--ink-2);max-width:54ch">{{ t.appSub }}</p>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <sc-for list="{{ appPerks }}" as="ap" hint-placeholder-count="3"><div style="display:flex;gap:12px;font-size:15px;color:var(--ink-2)"><span style="width:20px;height:20px;flex:none;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-size:11px;font-weight:800">✓</span>{{ ap }}</div></sc-for>
+      </div>
+      <div style="display:flex;background:var(--surface-2);border-radius:10px;padding:3px;align-self:flex-start">
+        <sc-for list="{{ osSeg }}" as="o" hint-placeholder-count="2"><button onClick="{{ o.onClick }}" style="height:34px;padding:0 14px;border:0;border-radius:8px;background:{{ o.bg }};color:{{ o.fg }};font:inherit;font-size:13px;font-weight:700;cursor:pointer">{{ o.label }}</button></sc-for>
+      </div>
+      <ol style="margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px">
+        <sc-for list="{{ steps }}" as="st" hint-placeholder-count="3"><li style="display:flex;gap:12px;align-items:baseline;font-size:14px;color:var(--ink-2)"><span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--ink-3)">{{ st.n }}</span>{{ st.text }}</li></sc-for>
+      </ol>
+      <button onClick="{{ install }}" style="align-self:flex-start;height:48px;padding:0 22px;border:0;border-radius:12px;background:var(--accent);color:#fff;font:inherit;font-size:15px;font-weight:800;cursor:pointer">{{ t.install }}</button>
+    </div>
+  </section>
+
+  <section id="premium" style="background:var(--surface);border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
+    <div style="max-width:1000px;margin:0 auto;padding:80px {{ pad }}px;display:flex;flex-direction:column;gap:32px">
+      <h2 style="margin:0;font-size:{{ h2 }}px;font-weight:800;letter-spacing:-0.04em;text-align:center">{{ t.priceH }}</h2>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px">
+        <sc-for list="{{ plans }}" as="pl" hint-placeholder-count="2">
+          <div style="padding:26px;border-radius:20px;background:{{ pl.bg }};border:{{ pl.border }};display:flex;flex-direction:column;gap:16px">
+            <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:20px;font-weight:800">{{ pl.name }}</span><span style="font-size:26px;font-weight:800;letter-spacing:-0.03em">{{ pl.price }}<span style="font-size:13px;font-weight:600;color:var(--ink-3)">{{ pl.per }}</span></span></div>
+            <div style="display:flex;flex-direction:column;gap:9px">
+              <sc-for list="{{ pl.items }}" as="it" hint-placeholder-count="4"><div style="display:flex;gap:10px;font-size:14px;color:var(--ink-2)"><span style="color:var(--accent-text);font-weight:800">✓</span>{{ it }}</div></sc-for>
+            </div>
+            <a href="{{ pl.href }}" style="margin-top:auto;height:46px;border-radius:11px;background:{{ pl.btnBg }};color:{{ pl.btnFg }};border:1px solid var(--line);font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;text-decoration:none">{{ pl.cta }}</a>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+
+  <section style="max-width:1240px;margin:0 auto;padding:80px {{ pad }}px">
+    <div style="padding:{{ partnerPad }}px;border-radius:24px;background:var(--accent);color:#fff;display:grid;grid-template-columns:{{ partnerCols }};gap:28px;align-items:center">
+      <div><h2 style="margin:0;font-size:{{ h2 }}px;font-weight:800;letter-spacing:-0.04em;text-wrap:balance">{{ t.partnerH }}</h2><p style="margin:12px 0 0;font-size:16px;line-height:1.6;max-width:56ch">{{ t.partnerSub }}</p></div>
+      <a href="mailto:partner@nacp.id" style="justify-self:{{ partnerAlign }};height:50px;padding:0 22px;border-radius:12px;background:#fff;color:#16171A;font-size:15px;font-weight:800;display:flex;align-items:center;text-decoration:none;white-space:nowrap">{{ t.partnerCta }}</a>
+    </div>
+  </section>
+
+  <section id="faq" style="max-width:860px;margin:0 auto;padding:0 {{ pad }}px 88px;display:flex;flex-direction:column;gap:20px">
+    <h2 style="margin:0;font-size:{{ h2 }}px;font-weight:800;letter-spacing:-0.04em">FAQ</h2>
+    <div style="display:flex;flex-direction:column;border-top:1px solid var(--line)">
+      <sc-for list="{{ faq }}" as="f" hint-placeholder-count="6">
+        <div style="border-bottom:1px solid var(--line)">
+          <button onClick="{{ f.onClick }}" style="width:100%;display:flex;justify-content:space-between;gap:16px;padding:18px 0;border:0;background:transparent;color:var(--ink);font:inherit;font-size:17px;font-weight:700;text-align:left;cursor:pointer">{{ f.q }}<span style="flex:none;color:var(--ink-3);font-size:20px;line-height:1">{{ f.sign }}</span></button>
+          <sc-if value="{{ f.open }}" hint-placeholder-val="{{ false }}"><p style="margin:0 0 18px;font-size:15px;line-height:1.65;color:var(--ink-2);max-width:68ch">{{ f.a }}</p></sc-if>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+</main>
+
+<footer style="border-top:1px solid var(--line);background:var(--surface)">
+  <div style="max-width:1240px;margin:0 auto;padding:44px {{ pad }}px;display:grid;grid-template-columns:{{ footCols }};gap:28px">
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;align-items:center;gap:8px;font-weight:800;font-size:22px;letter-spacing:-0.05em"><span style="width:10px;height:10px;background:var(--accent);border-radius:3px"></span>nacp</div>
+      <p style="margin:0;font-size:13px;line-height:1.6;color:var(--ink-3);max-width:42ch">{{ t.seo }}</p>
+    </div>
+    <sc-for list="{{ footer }}" as="fc" hint-placeholder-count="3">
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="font-size:12px;font-weight:800;color:var(--ink-3);letter-spacing:0.04em">{{ fc.h }}</div>
+        <sc-for list="{{ fc.links }}" as="l" hint-placeholder-count="4"><a href="{{ l.href }}" style="font-size:14px;color:var(--ink-2)">{{ l.label }}</a></sc-for>
+      </div>
+    </sc-for>
+  </div>
+  <div style="max-width:1240px;margin:0 auto;padding:16px {{ pad }}px 28px;border-top:1px solid var(--line);font-size:12px;color:var(--ink-3)">© 2026 nacp · {{ t.rights }}</div>
+</footer>
+
+<sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:90;max-width:calc(100% - 24px);padding:12px 16px;border-radius:10px;background:#16171A;color:#fff;font-size:13px;font-weight:600;line-height:1.5">{{ toast }}</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const COMICS = [['langit','Langit yang Retak','Lokal',250],['pedang','Pedang Ketujuh','Manhwa',20],['kedai','Kedai Teh Musim Gugur','Manga',60],['raja','Raja Tanpa Mahkota','Manhua',300],['sekolah','Sekolah Malam','Lokal',160],['pemburu','Pemburu Level Nol','Manhwa',230],['surat','Surat untuk Hana','Manga',350],['gerbang','Gerbang Naga Giok','Manhua',150],['ojek','Ojek Dimensi','Lokal',80]];
+const col = h => `oklch(0.42 0.09 ${h})`;
+const T = {
+  id: { nav:['Fitur','Aplikasi','Premium','FAQ'], cta:'Mulai baca', install:'Pasang aplikasi', badge:'Komik berlisensi · Bahasa Indonesia', h1:'Baca komik resmi, cepat, di mana saja.', sub:'Manga, manhwa, manhua, dan komik lokal dari publisher dan kreator yang bekerja sama langsung dengan nacp. Gratis dengan iklan, atau Premium tanpa iklan.', stats:[['5','partner resmi'],['1.200+','judul'],['300+','chapter / minggu']], types:[['Manga','Jepang · baca kanan ke kiri'],['Manhwa','Korea · scroll vertikal'],['Manhua','Tiongkok · berwarna'],['Lokal','Kreator Indonesia']], featH:'Dibuat untuk orang yang baca tiap hari', f1:'Rilis resmi, kredit jelas', f1b:'Setiap judul tayang atas izin publisher atau kreatornya. Nama partner tampil di halaman komik dan di akhir chapter.', f2:'Gambar cepat, hemat kuota', f2b:'Halaman disimpan di CDN sendiri dalam WebP/AVIF. Chapter berikutnya dimuat lebih dulu, dan ada mode hemat data.', f3:'Baca sesuai gayamu', f3b:'Pilih scroll atau per halaman, arah baca, lebar gambar, latar, sampai auto-scroll. Pengaturan disimpan per judul.', q:['Hemat data','HD'], reader:['Scroll','Per halaman','Kanan → kiri','Sepia','Auto-scroll','Zoom'], appH:'Pasang nacp di layar utama', appSub:'Webapp nacp jalan langsung dari browser tanpa toko aplikasi, ukurannya kecil, dan bisa dipakai offline.', appPerks:['Download chapter untuk dibaca tanpa sinyal','Notifikasi saat judul yang kamu bookmark update','Buka layar penuh seperti aplikasi biasa'], os:['Android','iPhone'], stepsA:['Buka nacp.id di Chrome','Ketuk menu ⋮ di kanan atas','Pilih “Tambahkan ke layar utama”'], stepsI:['Buka nacp.id di Safari','Ketuk tombol Bagikan','Pilih “Tambah ke Layar Utama”'], installHint:'Ikuti langkah di bagian Aplikasi untuk memasang nacp di perangkatmu.', priceH:'Gratis selamanya, atau tanpa iklan', free:'Gratis', freeItems:['Semua chapter yang sudah tayang','Bookmark & riwayat tersinkron','Pengaturan baca lengkap','Didukung iklan'], prem:'Premium', premItems:['Tanpa iklan di semua halaman','Early access 1–7 hari lebih awal','Gambar HD tanpa batas','Download offline di webapp'], perMonth:'/bulan', freeCta:'Mulai baca', premCta:'Langganan Premium', partnerH:'Kamu publisher atau kreator?', partnerSub:'Rilis judulmu di nacp dengan bagi hasil dari iklan dan Premium, panel upload sendiri, jadwal rilis, dan statistik pembaca.', partnerCta:'Ajukan kerja sama', faq:[['Apakah nacp gratis?','Ya. Semua chapter yang sudah tayang bisa dibaca gratis dengan iklan. Premium Rp15.000/bulan menghilangkan iklan dan membuka early access.'],['Apakah komik di nacp resmi?','Ya. Setiap judul dirilis atas kerja sama dengan publisher, studio, atau kreatornya, dan kredit partner ditampilkan di setiap judul.'],['Kenapa ada iklan?','Iklan membiayai server, CDN gambar, dan bagi hasil untuk partner. Jika ingin tanpa iklan, pilih Premium.'],['Bisa dibaca offline?','Bisa, lewat webapp. Pelanggan Premium dapat mengunduh chapter dan membacanya tanpa koneksi.'],['Bagaimana cara request komik?','Gunakan tombol Request komik di halaman pencarian. Judul dengan vote terbanyak kami prioritaskan untuk dinegosiasikan.'],['Metode bayar apa saja?','QRIS, GoPay, OVO, DANA, ShopeePay, dan virtual account bank.']], seo:'nacp adalah tempat baca manga, manhwa, manhua, dan komik lokal berlisensi dalam Bahasa Indonesia, dengan update chapter terjadwal tiap minggu.', foot:[['Baca',[['Beranda','nacp%20Beranda.dc.html'],['Jadwal update','nacp%20Halaman.dc.html?p=jadwal'],['Daftar komik','nacp%20Halaman.dc.html?p=cari'],['Bookmark','nacp%20Halaman.dc.html?p=bookmark']]],['nacp',[['Premium','#premium'],['Aplikasi','#aplikasi'],['Kerja sama','mailto:partner@nacp.id'],['FAQ','#faq']]],['Legal',[['Syarat layanan','nacp%20Legal.dc.html?p=syarat'],['Kebijakan privasi','nacp%20Legal.dc.html?p=privasi'],['Laporan hak cipta','nacp%20Legal.dc.html?p=hakcipta'],['Kontak','mailto:halo@nacp.id']]]], rights:'Semua karya milik pemegang hak masing-masing.', light:'Terang', dark:'Gelap' },
+  en: { nav:['Features','App','Premium','FAQ'], cta:'Start reading', install:'Install app', badge:'Licensed comics · Indonesian & English', h1:'Read official comics, fast, anywhere.', sub:'Manga, manhwa, manhua, and Indonesian comics from publishers and creators who partner directly with nacp. Free with ads, or Premium with none.', stats:[['5','official partners'],['1,200+','titles'],['300+','chapters / week']], types:[['Manga','Japan · right to left'],['Manhwa','Korea · vertical scroll'],['Manhua','China · full color'],['Local','Indonesian creators']], featH:'Built for people who read every day', f1:'Official releases, clear credit', f1b:'Every title is published with permission from its publisher or creator. Partner names appear on the comic page and at the end of each chapter.', f2:'Fast images, light on data', f2b:'Pages live on our own CDN in WebP/AVIF. The next chapter preloads, and there is a data-saver mode.', f3:'Read your way', f3b:'Choose scroll or paged, reading direction, image width, background, even auto-scroll. Settings are saved per title.', q:['Data saver','HD'], reader:['Scroll','Paged','Right → left','Sepia','Auto-scroll','Zoom'], appH:'Put nacp on your home screen', appSub:'The nacp webapp runs straight from your browser with no app store, stays small, and works offline.', appPerks:['Download chapters to read without signal','Get notified when bookmarked titles update','Opens full screen like a regular app'], os:['Android','iPhone'], stepsA:['Open nacp.id in Chrome','Tap the ⋮ menu','Choose “Add to Home screen”'], stepsI:['Open nacp.id in Safari','Tap the Share button','Choose “Add to Home Screen”'], installHint:'Follow the steps in the App section to install nacp on your device.', priceH:'Free forever, or ad-free', free:'Free', freeItems:['Every released chapter','Synced bookmarks & history','Full reading settings','Supported by ads'], prem:'Premium', premItems:['No ads anywhere','Early access 1–7 days ahead','Unlimited HD images','Offline downloads in the webapp'], perMonth:'/month', freeCta:'Start reading', premCta:'Get Premium', partnerH:'Are you a publisher or creator?', partnerSub:'Release your titles on nacp with revenue share from ads and Premium, your own upload panel, release scheduling, and reader stats.', partnerCta:'Apply to partner', faq:[['Is nacp free?','Yes. Every released chapter is free with ads. Premium at Rp15,000/month removes ads and unlocks early access.'],['Are the comics official?','Yes. Every title is released in partnership with its publisher, studio, or creator, and partner credit is shown on each title.'],['Why are there ads?','Ads pay for servers, the image CDN, and revenue share for partners. For no ads, choose Premium.'],['Can I read offline?','Yes, in the webapp. Premium members can download chapters and read without a connection.'],['How do I request a comic?','Use the Request button on the search page. The most-voted titles are prioritized for licensing.'],['Which payment methods?','QRIS, GoPay, OVO, DANA, ShopeePay, and bank virtual accounts.']], seo:'nacp is a home for licensed manga, manhwa, manhua, and Indonesian comics, with scheduled chapter updates every week.', foot:[['Read',[['Home','nacp%20Beranda.dc.html'],['Schedule','nacp%20Halaman.dc.html?p=jadwal'],['All comics','nacp%20Halaman.dc.html?p=cari'],['Bookmarks','nacp%20Halaman.dc.html?p=bookmark']]],['nacp',[['Premium','#premium'],['App','#aplikasi'],['Partner with us','mailto:partner@nacp.id'],['FAQ','#faq']]],['Legal',[['Terms','nacp%20Legal.dc.html?p=syarat'],['Privacy','nacp%20Legal.dc.html?p=privasi'],['Copyright reports','nacp%20Legal.dc.html?p=hakcipta'],['Contact','mailto:halo@nacp.id']]]], rights:'All works belong to their respective rights holders.', light:'Light', dark:'Dark' }
+};
+
+class Component extends DCLogic {
+  state = { theme: localStorage.getItem('nacp-theme') || 'dark', lang: localStorage.getItem('nacp-lang') || 'id', w: 1280, faq: 0, q: 0, os: 0, toast: '' };
+  rootRef = React.createRef();
+  componentDidMount() {
+    this.measure = () => { const el = this.rootRef.current; this.setState({ w: el && el.clientWidth ? el.clientWidth : innerWidth }); };
+    this.measure(); setTimeout(this.measure, 50); addEventListener('resize', this.measure);
+    this.onBip = e => { e.preventDefault(); this.bip = e; }; addEventListener('beforeinstallprompt', this.onBip);
+  }
+  componentDidUpdate() { const el = this.rootRef.current; if (el && el.clientWidth && Math.abs(el.clientWidth - this.state.w) > 2) this.setState({ w: el.clientWidth }); }
+  componentWillUnmount() { removeEventListener('resize', this.measure); removeEventListener('beforeinstallprompt', this.onBip); }
+  flash(m) { this.setState({ toast: m }); clearTimeout(this.tt); this.tt = setTimeout(() => this.setState({ toast: '' }), 3200); }
+  renderVals() {
+    const s = this.state, t = T[s.lang], mobile = s.w < 760, wide = s.w >= 1000;
+    const seg = (cur, key, labels) => labels.map((l, i) => ({ label: l, bg: cur === i ? 'var(--bg)' : 'transparent', fg: cur === i ? 'var(--ink)' : 'var(--ink-3)', onClick: () => this.setState({ [key]: i }) }));
+    const card = ([id, title, type, h]) => ({ title, type: type === 'Lokal' && s.lang === 'en' ? 'Local' : type, bg: col(h), href: 'nacp%20Detail.dc.html?c=' + id });
+    const typeKeys = ['Manga','Manhwa','Manhua','Lokal'];
+    return {
+      theme: s.theme, t, rootRef: this.rootRef, desktop: !mobile,
+      pad: mobile ? 16 : 32, heroPad: mobile ? 40 : 80, h1: mobile ? 42 : wide ? 76 : 58, h2: mobile ? 30 : 44,
+      heroCols: wide ? 'minmax(0,1.05fr) minmax(0,1fr)' : 'minmax(0,1fr)', wallH: mobile ? 420 : 600,
+      appCols: wide ? '360px minmax(0,1fr)' : 'minmax(0,1fr)', partnerCols: wide ? 'minmax(0,1fr) auto' : 'minmax(0,1fr)', partnerAlign: wide ? 'end' : 'start', partnerPad: mobile ? 24 : 44,
+      footCols: wide ? '1.6fr 1fr 1fr 1fr' : mobile ? '1fr' : '1fr 1fr',
+      nav: t.nav.map((l, i) => ({ label: l, href: ['#fitur','#aplikasi','#premium','#faq'][i] })),
+      stats: t.stats.map(([v, l]) => ({ v, l })),
+      wall: [0, 1, 2].map(c => ({ offset: [0, -90, -40][c], items: [0, 1, 2, 3].map(r => card(COMICS[(c * 3 + r) % COMICS.length])) })),
+      types: t.types.map(([label, sub], i) => ({ label, sub, covers: COMICS.filter(c => c[2] === typeKeys[i]).slice(0, 3).map(c => col(c[3])).concat([col(i * 90 + 40)]).slice(0, 3) })),
+      partners: ['Studio Kertas','Hanul Media','Kumo Press','Jade Lantern','Rumah Panel'],
+      qSeg: seg(s.q, 'q', t.q), qPct: s.q === 0 ? 34 : 100, qLabel: s.q === 0 ? '≈ 2,1 MB / ch' : '≈ 6,4 MB / ch',
+      readerChips: t.reader,
+      phoneCovers: [250, 20, 60, 300, 160, 230].map(col), phoneNav: (s.lang === 'id' ? ['Beranda','Cari','Bookmark','Profil'] : ['Home','Search','Saved','Profile']).map((l, i) => ({ l, fg: i === 0 ? '#ECEDEF' : '#6F737B' })),
+      appPerks: t.appPerks, osSeg: seg(s.os, 'os', t.os), steps: (s.os === 0 ? t.stepsA : t.stepsI).map((text, i) => ({ n: '0' + (i + 1), text })),
+      install: async () => { if (this.bip) { this.bip.prompt(); this.bip = null; } else this.flash(t.installHint); },
+      plans: [
+        { name: t.free, price: 'Rp0', per: '', items: t.freeItems, cta: t.freeCta, href: 'nacp%20Beranda.dc.html', bg: 'var(--bg)', border: '1px solid var(--line)', btnBg: 'var(--surface)', btnFg: 'var(--ink)' },
+        { name: t.prem, price: 'Rp15rb', per: t.perMonth, items: t.premItems, cta: t.premCta, href: 'nacp%20Halaman.dc.html?p=profil', bg: 'var(--accent-soft)', border: '2px solid var(--accent)', btnBg: 'var(--accent)', btnFg: '#fff' }
+      ],
+      faq: t.faq.map(([q, a], i) => ({ q, a, open: s.faq === i, sign: s.faq === i ? '−' : '+', onClick: () => this.setState({ faq: s.faq === i ? -1 : i }) })),
+      footer: t.foot.map(([h, links]) => ({ h, links: links.map(([label, href]) => ({ label, href })) })),
+      toast: s.toast,
+      langLabel: s.lang === 'id' ? 'ID' : 'EN', themeLabel: s.theme === 'light' ? t.dark : t.light,
+      toggleLang: () => { const l = s.lang === 'id' ? 'en' : 'id'; localStorage.setItem('nacp-lang', l); this.setState({ lang: l }); },
+      toggleTheme: () => { const th = s.theme === 'light' ? 'dark' : 'light'; localStorage.setItem('nacp-theme', th); this.setState({ theme: th }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

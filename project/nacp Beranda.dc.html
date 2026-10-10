@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<title>nacp · Baca komik, manga, manhwa, manhua</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root,[data-theme="light"]{--bg:#F6F6F4;--surface:#FFFFFF;--surface-2:#EFEFEC;--ink:#16171A;--ink-2:#50545D;--ink-3:#868A93;--line:#E3E3DF;--line-2:#CFCFCA;--accent:#3E7BE6;--accent-text:#2A62C9;--accent-soft:#E7EEFB}
+[data-theme="dark"]{--bg:#0F1013;--surface:#17191D;--surface-2:#1F2127;--ink:#ECEDEF;--ink-2:#A4A8B0;--ink-3:#6F737B;--line:#272A31;--line-2:#363A42;--accent:#3E7BE6;--accent-text:#86ABF2;--accent-soft:#1A2640}
+body{margin:0;background:#0F1013;font-family:'Plus Jakarta Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:var(--accent-text);text-decoration:none}a:hover{text-decoration:underline}
+*{box-sizing:border-box}
+</style>
+</helmet>
+<div data-theme="{{ theme }}" style="min-height:100vh;background:{{ outerBg }};color:var(--ink);display:flex;justify-content:center">
+<div ref="{{ rootRef }}" data-screen-label="Beranda" style="width:100%;max-width:{{ frameMax }};background:var(--bg);min-height:100vh;display:flex;flex-direction:column;position:relative">
+
+<header style="position:sticky;top:0;z-index:30;background:var(--bg);border-bottom:1px solid var(--line)">
+  <div style="max-width:1440px;margin:0 auto;padding:12px {{ pad }}px;display:flex;align-items:center;gap:20px">
+    <a href="#" style="display:flex;align-items:center;gap:8px;color:var(--ink);font-weight:800;font-size:23px;letter-spacing:-0.05em;text-decoration:none">
+      <span style="width:11px;height:11px;background:var(--accent);border-radius:3px"></span>nacp
+    </a>
+    <sc-if value="{{ desktop }}" hint-placeholder-val="{{ true }}">
+      <nav style="display:flex;gap:4px">
+        <sc-for list="{{ types }}" as="tp" hint-placeholder-count="5">
+          <button onClick="{{ tp.onClick }}" style="border:0;background:{{ tp.bg }};color:{{ tp.fg }};padding:8px 14px;border-radius:8px;font:inherit;font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap">{{ tp.label }}</button>
+        </sc-for>
+      </nav>
+    </sc-if>
+    <sc-if value="{{ showSubnav }}" hint-placeholder-val="{{ true }}">
+      <nav style="display:flex;gap:2px">
+        <sc-for list="{{ subnav }}" as="sn" hint-placeholder-count="4">
+          <a href="{{ sn.href }}" style="padding:8px 10px;font-size:13px;font-weight:600;color:var(--ink-3);text-decoration:none;white-space:nowrap">{{ sn.label }}</a>
+        </sc-for>
+      </nav>
+    </sc-if>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:8px;flex:1;justify-content:flex-end;min-width:0">
+      <sc-if value="{{ searchBtn }}" hint-placeholder-val="{{ false }}">
+        <a href="nacp%20Halaman.dc.html?p=cari" style="height:36px;padding:0 12px;border:1px solid var(--line);background:var(--surface);color:var(--ink-2);border-radius:9px;font-size:13px;font-weight:600;white-space:nowrap;flex:none;display:flex;align-items:center;text-decoration:none">{{ t.searchShort }}</a>
+      </sc-if>
+      <sc-if value="{{ showSearch }}" hint-placeholder-val="{{ true }}">
+        <input onKeyDown="{{ onSearchKey }}" placeholder="{{ t.search }}" style="flex:1;max-width:300px;min-width:140px;height:38px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:9px;padding:0 14px;font:inherit;font-size:14px;outline:none"></input>
+      </sc-if>
+      <button onClick="{{ toggleLang }}" style="height:36px;min-width:42px;border:1px solid var(--line);background:var(--surface);color:var(--ink-2);border-radius:9px;font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer">{{ langLabel }}</button>
+      <button onClick="{{ toggleTheme }}" style="height:36px;padding:0 12px;border:1px solid var(--line);background:var(--surface);color:var(--ink-2);border-radius:9px;font:inherit;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;flex:none">{{ themeLabel }}</button>
+      <sc-if value="{{ desktop }}" hint-placeholder-val="{{ true }}">
+        <a href="nacp%20Halaman.dc.html?p=profil" style="height:36px;padding:0 14px;border:0;background:var(--accent);color:#fff;border-radius:9px;font-size:13px;font-weight:700;white-space:nowrap;flex:none;display:flex;align-items:center;text-decoration:none">{{ premLabel }}</a>
+      </sc-if>
+    </div>
+  </div>
+  <sc-if value="{{ mobile }}" hint-placeholder-val="{{ false }}">
+    <div style="padding:0 {{ pad }}px 10px;display:flex;gap:6px;overflow-x:auto">
+      <sc-for list="{{ types }}" as="tp" hint-placeholder-count="5">
+        <button onClick="{{ tp.onClick }}" style="border:1px solid var(--line);background:{{ tp.chipBg }};color:{{ tp.chipFg }};padding:7px 14px;border-radius:999px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap">{{ tp.label }}</button>
+      </sc-for>
+    </div>
+  </sc-if>
+</header>
+
+<main style="max-width:1440px;width:100%;margin:0 auto;padding:{{ mainTop }}px {{ pad }}px 56px;display:flex;flex-direction:column;gap:{{ secGap }}px;flex:1">
+
+  <section style="display:grid;grid-template-columns:{{ heroCols }};gap:12px">
+    <a href="{{ hero.href }}" style="position:relative;display:block;border-radius:16px;overflow:hidden;min-height:{{ heroH }}px;background:repeating-linear-gradient(135deg,rgba(255,255,255,0.035) 0 12px,transparent 12px 24px),{{ hero.bg }};color:#fff;text-decoration:none">
+      <span style="position:absolute;right:16px;top:14px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(255,255,255,0.55)">key art · 1600×900</span>
+      <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 35%,rgba(0,0,0,0.82) 100%)"></div>
+      <div style="position:absolute;left:0;right:0;bottom:0;padding:{{ heroPad }}px;display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;font-size:12px;font-weight:700">
+          <span style="padding:4px 9px;border-radius:6px;background:var(--accent)">{{ hero.badge }}</span>
+          <span style="padding:4px 9px;border-radius:6px;background:rgba(255,255,255,0.16)">{{ hero.typeLabel }} · {{ hero.genre }}</span>
+        </div>
+        <div style="font-size:{{ heroTitle }}px;line-height:1;font-weight:800;letter-spacing:-0.04em;text-wrap:balance;max-width:16ch">{{ hero.title }}</div>
+        <div style="font-size:15px;line-height:1.55;color:rgba(255,255,255,0.82);max-width:58ch;text-wrap:pretty">{{ hero.syn }}</div>
+        <div style="display:flex;align-items:center;gap:14px;margin-top:6px;flex-wrap:wrap">
+          <span style="padding:12px 20px;border-radius:10px;background:#fff;color:#16171A;font-size:14px;font-weight:800">{{ hero.cta }}</span>
+          <span style="font-size:13px;color:rgba(255,255,255,0.75)">★ {{ hero.rating }} · {{ hero.views }}</span>
+          <div style="display:flex;gap:6px;margin-left:auto">
+            <sc-for list="{{ heroDots }}" as="hd" hint-placeholder-count="5">
+              <button onClick="{{ hd.onClick }}" style="width:{{ hd.w }}px;height:6px;border:0;border-radius:3px;background:{{ hd.bg }};cursor:pointer;padding:0"></button>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </a>
+    <sc-if value="{{ heroSide }}" hint-placeholder-val="{{ true }}">
+      <div style="display:grid;grid-template-rows:1fr 1fr;gap:12px">
+        <sc-for list="{{ heroSideList }}" as="c" hint-placeholder-count="2">
+          <a href="{{ c.href }}" style="position:relative;display:block;border-radius:16px;overflow:hidden;background:repeating-linear-gradient(135deg,rgba(255,255,255,0.035) 0 12px,transparent 12px 24px),{{ c.bg }};color:#fff;text-decoration:none">
+            <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 40%,rgba(0,0,0,0.8) 100%)"></div>
+            <span style="position:absolute;right:12px;top:10px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:rgba(255,255,255,0.5)">key art</span>
+            <div style="position:absolute;left:18px;right:18px;bottom:16px">
+              <div style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.75);margin-bottom:4px">{{ c.typeLabel }} · {{ c.chLabel }}</div>
+              <div style="font-size:22px;font-weight:800;letter-spacing:-0.03em;line-height:1.1">{{ c.title }}</div>
+            </div>
+          </a>
+        </sc-for>
+      </div>
+    </sc-if>
+  </section>
+  <div style="display:grid;grid-template-columns:{{ bodyCols }};gap:32px;align-items:start">
+  <div style="min-width:0;display:flex;flex-direction:column;gap:{{ secGap }}px">
+
+  <section>
+    <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:14px">
+      <h2 style="margin:0;font-size:22px;font-weight:800;letter-spacing:-0.03em">{{ t.continue }}</h2>
+      <a href="nacp%20Halaman.dc.html?p=riwayat" style="font-size:13px;font-weight:700">{{ t.history }}</a>
+    </div>
+    <div style="display:grid;grid-auto-flow:column;grid-auto-columns:{{ contW }}px;gap:14px;overflow-x:auto;padding-bottom:6px">
+      <sc-for list="{{ continueList }}" as="c" hint-placeholder-count="6">
+        <a href="{{ c.readHref }}" style="display:flex;flex-direction:column;gap:8px;color:var(--ink);text-decoration:none">
+          <div style="position:relative;aspect-ratio:3/4;border-radius:12px;overflow:hidden;background:repeating-linear-gradient(135deg,rgba(255,255,255,0.035) 0 10px,transparent 10px 20px),{{ c.bg }}">
+            <span style="position:absolute;left:10px;top:9px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:rgba(255,255,255,0.5)">cover</span>
+            <sc-if value="{{ c.hasNew }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;right:8px;top:8px;padding:3px 8px;border-radius:6px;background:var(--accent);color:#fff;font-size:11px;font-weight:800">{{ c.newShort }}</span></sc-if>
+            <div style="position:absolute;inset:auto 0 0 0;padding:28px 10px 10px;background:linear-gradient(180deg,rgba(0,0,0,0),rgba(0,0,0,0.78));color:#fff">
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;margin-bottom:6px">{{ c.progressLabel }}</div>
+              <div style="height:4px;border-radius:2px;background:rgba(255,255,255,0.25);overflow:hidden"><div style="height:100%;width:{{ c.pct }}%;background:#fff"></div></div>
+            </div>
+          </div>
+          <div style="font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.title }}</div>
+        </a>
+      </sc-for>
+    </div>
+  </section>
+
+  <sc-if value="{{ recInline }}" hint-placeholder-val="{{ false }}">
+  <section>
+    <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:4px">
+      <h2 style="margin:0;font-size:22px;font-weight:800;letter-spacing:-0.03em">{{ t.forYou }}</h2>
+      <a href="nacp%20Halaman.dc.html?p=cari" style="font-size:13px;font-weight:700">{{ t.seeAll }}</a>
+    </div>
+    <div style="font-size:13px;color:var(--ink-3);margin-bottom:14px">{{ t.forYouSub }}</div>
+    <div style="display:grid;grid-auto-flow:column;grid-auto-columns:{{ recW }}px;gap:{{ gridGap }}px;overflow-x:auto;padding-bottom:6px">
+      <sc-for list="{{ recs }}" as="c" hint-placeholder-count="7">
+        <a href="{{ c.href }}" style="display:flex;flex-direction:column;gap:8px;color:var(--ink);text-decoration:none">
+          <div style="position:relative;aspect-ratio:3/4;border-radius:12px;overflow:hidden;background:repeating-linear-gradient(135deg,rgba(255,255,255,0.035) 0 10px,transparent 10px 20px),{{ c.bg }}">
+            <span style="position:absolute;left:8px;top:8px;padding:3px 7px;border-radius:6px;background:rgba(0,0,0,0.55);color:#fff;font-size:11px;font-weight:700">{{ c.typeLabel }}</span>
+            <span style="position:absolute;left:10px;bottom:8px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:rgba(255,255,255,0.5)">cover</span>
+          </div>
+          <div style="font-size:15px;font-weight:700;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{{ c.title }}</div>
+          <div style="font-size:12px;color:var(--ink-3)">{{ c.genre }} · ★ {{ c.rating }}</div>
+        </a>
+      </sc-for>
+    </div>
+  </section>
+  </sc-if>
+
+  <sc-if value="{{ ads }}" hint-placeholder-val="{{ true }}">
+    <div style="display:flex;justify-content:center">
+      <div style="width:100%;max-width:{{ topAdW }}px;height:{{ topAdH }}px;border:1px dashed var(--line-2);border-radius:8px;background:var(--surface);display:flex;align-items:center;justify-content:center;gap:10px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-3)"><span style="font-weight:500;color:var(--ink-2)">{{ t.ad }}</span><span>{{ topAdSize }}</span><span>home_top</span></div>
+    </div>
+  </sc-if>
+
+  <section>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+      <h2 style="margin:0;font-size:22px;font-weight:800;letter-spacing:-0.03em">{{ t.ranking }}</h2>
+      <div style="display:flex;background:var(--surface-2);border-radius:9px;padding:3px">
+        <sc-for list="{{ rankTabs }}" as="rt" hint-placeholder-count="2">
+          <button onClick="{{ rt.onClick }}" style="border:0;background:{{ rt.bg }};color:{{ rt.fg }};padding:7px 16px;border-radius:7px;font:inherit;font-size:13px;font-weight:700;cursor:pointer">{{ rt.label }}</button>
+        </sc-for>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax({{ rankMin }}px,1fr));gap:{{ gridGap }}px">
+      <sc-for list="{{ ranking }}" as="r" hint-placeholder-count="10">
+        <a href="{{ r.href }}" style="display:flex;flex-direction:column;gap:8px;color:var(--ink);text-decoration:none">
+          <div style="position:relative;aspect-ratio:3/4;border-radius:12px;overflow:hidden;background:repeating-linear-gradient(135deg,rgba(255,255,255,0.035) 0 10px,transparent 10px 20px),{{ r.bg }}">
+            <span style="position:absolute;right:10px;top:9px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:rgba(255,255,255,0.5)">cover</span>
+            <div style="position:absolute;inset:auto 0 0 0;height:55%;background:linear-gradient(180deg,rgba(0,0,0,0),rgba(0,0,0,0.75))"></div>
+            <span style="position:absolute;left:10px;bottom:2px;font-size:{{ rankNum }}px;line-height:1;font-weight:800;letter-spacing:-0.06em;color:#fff">{{ r.rank }}</span>
+            <span style="position:absolute;right:10px;bottom:10px;padding:3px 8px;border-radius:6px;background:rgba(255,255,255,0.18);color:#fff;font-size:11px;font-weight:700">{{ r.chLabel }}</span>
+          </div>
+          <div>
+            <div style="font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.title }}</div>
+            <div style="font-size:12px;color:var(--ink-3);margin-top:2px">{{ r.genre }} · {{ r.views }}</div>
+          </div>
+        </a>
+      </sc-for>
+    </div>
+  </section>
+
+  <div style="display:grid;grid-template-columns:{{ updCols }};gap:28px;align-items:start">
+    <section style="min-width:0">
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:16px">
+        <h2 style="margin:0;font-size:22px;font-weight:800;letter-spacing:-0.03em">{{ t.latest }}</h2>
+        <a href="nacp%20Halaman.dc.html?p=cari" style="font-size:13px;font-weight:700">{{ t.seeAll }}</a>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax({{ gridMin }}px,1fr));gap:{{ gridGap }}px">
+        <sc-for list="{{ updates }}" as="u" hint-placeholder-count="10">
+          <sc-if value="{{ u.isAd }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div style="aspect-ratio:3/4;border:1px dashed var(--line-2);border-radius:12px;background:var(--surface);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-3)"><span style="color:var(--ink-2);font-weight:500">{{ t.sponsored }}</span><span>native</span><span>home_feed_native</span></div>
+            </div>
+          </sc-if>
+          <sc-if value="{{ u.isItem }}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex;flex-direction:column;gap:8px;min-width:0">
+              <a href="{{ u.href }}" style="position:relative;display:block;aspect-ratio:3/4;border-radius:12px;overflow:hidden;background:repeating-linear-gradient(135deg,rgba(255,255,255,0.035) 0 10px,transparent 10px 20px),{{ u.bg }}">
+                <span style="position:absolute;left:8px;top:8px;padding:3px 7px;border-radius:6px;background:rgba(0,0,0,0.55);color:#fff;font-size:11px;font-weight:700">{{ u.typeLabel }}</span>
+                <sc-if value="{{ u.fresh }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;right:8px;top:8px;padding:3px 7px;border-radius:6px;background:var(--accent);color:#fff;font-size:11px;font-weight:800">UP</span></sc-if>
+                <span style="position:absolute;left:10px;bottom:8px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:rgba(255,255,255,0.5)">cover</span>
+              </a>
+              <a href="{{ u.href }}" style="font-size:15px;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ u.title }}</a>
+              <div style="display:flex;flex-direction:column;gap:4px">
+                <sc-for list="{{ u.chapters }}" as="ch" hint-placeholder-count="2">
+                  <a href="{{ ch.href }}" style="display:flex;justify-content:space-between;gap:8px;padding:6px 10px;border-radius:7px;background:var(--surface);border:1px solid var(--line);font-size:13px;font-weight:600;color:var(--ink);text-decoration:none">{{ ch.label }}<span style="font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:400;color:{{ ch.timeColor }}">{{ ch.time }}</span></a>
+                </sc-for>
+              </div>
+            </div>
+          </sc-if>
+        </sc-for>
+      </div>
+    </section>
+    <sc-if value="{{ sideAd }}" hint-placeholder-val="{{ true }}">
+      <aside style="position:sticky;top:84px;display:flex;flex-direction:column;gap:14px;padding-top:44px">
+        <div style="height:600px;border:1px dashed var(--line-2);border-radius:10px;background:var(--surface);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-3)"><span style="color:var(--ink-2);font-weight:500">{{ t.ad }}</span><span>300×600</span><span>home_sidebar</span></div>
+        <div style="height:250px;border:1px dashed var(--line-2);border-radius:10px;background:var(--surface);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-3)"><span style="color:var(--ink-2);font-weight:500">{{ t.ad }}</span><span>300×250</span><span>home_side_b</span></div>
+      </aside>
+    </sc-if>
+  </div>
+
+
+  <section>
+    <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:16px">
+      <h2 style="margin:0;font-size:22px;font-weight:800;letter-spacing:-0.03em">{{ t.newc }}</h2>
+      <a href="nacp%20Halaman.dc.html?p=cari" style="font-size:13px;font-weight:700">{{ t.seeAll }}</a>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax({{ gridMin }}px,1fr));gap:{{ gridGap }}px">
+      <sc-for list="{{ newList }}" as="c" hint-placeholder-count="6">
+        <a href="{{ c.href }}" style="display:flex;flex-direction:column;gap:8px;color:var(--ink);text-decoration:none">
+          <div style="position:relative;aspect-ratio:3/4;border-radius:12px;overflow:hidden;background:repeating-linear-gradient(135deg,rgba(255,255,255,0.035) 0 10px,transparent 10px 20px),{{ c.bg }}">
+            <span style="position:absolute;left:8px;top:8px;padding:3px 8px;border-radius:6px;background:var(--accent);color:#fff;font-size:11px;font-weight:800;letter-spacing:0.03em">{{ t.newTag }}</span>
+            <span style="position:absolute;left:10px;bottom:8px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:rgba(255,255,255,0.5)">cover</span>
+          </div>
+          <div style="font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.title }}</div>
+          <div style="font-size:12px;color:var(--ink-3)">{{ c.typeLabel }} · {{ c.chLabel }}</div>
+        </a>
+      </sc-for>
+    </div>
+  </section>
+
+  <section>
+    <h2 style="margin:0 0 14px;font-size:22px;font-weight:800;letter-spacing:-0.03em">{{ t.genre }}</h2>
+    <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:16px">
+      <sc-for list="{{ genres }}" as="g" hint-placeholder-count="10">
+        <button onClick="{{ g.onClick }}" style="border:1px solid var(--line);background:{{ g.bg }};color:{{ g.fg }};padding:8px 16px;border-radius:999px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap">{{ g.label }}</button>
+      </sc-for>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax({{ gridMin }}px,1fr));gap:{{ gridGap }}px">
+      <sc-for list="{{ genreList }}" as="c" hint-placeholder-count="6">
+        <a href="{{ c.href }}" style="display:flex;flex-direction:column;gap:8px;color:var(--ink);text-decoration:none">
+          <div style="position:relative;aspect-ratio:3/4;border-radius:12px;overflow:hidden;background:repeating-linear-gradient(135deg,rgba(255,255,255,0.035) 0 10px,transparent 10px 20px),{{ c.bg }}">
+            <span style="position:absolute;left:10px;bottom:8px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:rgba(255,255,255,0.5)">cover</span>
+          </div>
+          <div style="font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.title }}</div>
+          <div style="font-size:12px;color:var(--ink-3)">{{ c.typeLabel }} · ★ {{ c.rating }}</div>
+        </a>
+      </sc-for>
+    </div>
+  </section>
+
+  <section style="border-top:1px solid var(--line);padding-top:28px;display:flex;flex-wrap:wrap;gap:16px 40px;align-items:flex-start">
+    <div style="max-width:720px;flex:1;min-width:260px">
+      <h1 style="margin:0 0 10px;font-size:16px;font-weight:700;color:var(--ink-2)">{{ t.seoTitle }}</h1>
+      <p style="margin:0;font-size:14px;line-height:1.7;color:var(--ink-3);text-wrap:pretty">{{ t.seoBody }}</p>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;border:1px solid var(--line);font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--ink-2);white-space:nowrap">
+      <span style="width:7px;height:7px;border-radius:50%;background:#2FA67A"></span>{{ onlineLabel }} {{ t.online }}
+    </div>
+  </section>
+  </div>
+  <sc-if value="{{ recSide }}" hint-placeholder-val="{{ true }}">
+    <aside style="position:sticky;top:84px;max-height:calc(100vh - 100px);overflow-y:auto;display:flex;flex-direction:column;gap:16px;padding:18px;border-radius:16px;background:var(--surface);border:1px solid var(--line)">
+      <div>
+        <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px"><h2 style="margin:0;font-size:19px;font-weight:800;letter-spacing:-0.03em">{{ t.forYou }}</h2><a href="#" style="font-size:12px;font-weight:700">{{ t.seeAll }}</a></div>
+        <div style="font-size:12px;color:var(--ink-3);margin-top:4px;line-height:1.45">{{ t.forYouSub }}</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px 12px">
+        <sc-for list="{{ recsSide }}" as="c" hint-placeholder-count="6">
+          <a href="{{ c.href }}" style="display:flex;flex-direction:column;gap:7px;color:var(--ink);text-decoration:none">
+            <div style="position:relative;aspect-ratio:3/4;border-radius:10px;overflow:hidden;background:repeating-linear-gradient(135deg,rgba(255,255,255,0.035) 0 10px,transparent 10px 20px),{{ c.bg }}">
+              <span style="position:absolute;left:7px;top:7px;padding:2px 6px;border-radius:5px;background:rgba(0,0,0,0.55);color:#fff;font-size:10px;font-weight:700">{{ c.typeLabel }}</span>
+              <span style="position:absolute;right:7px;bottom:7px;padding:2px 6px;border-radius:5px;background:rgba(0,0,0,0.55);color:#fff;font-size:10px;font-weight:700">★ {{ c.rating }}</span>
+            </div>
+            <div style="font-size:13px;font-weight:700;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{{ c.title }}</div>
+          </a>
+        </sc-for>
+      </div>
+      <sc-if value="{{ ads }}" hint-placeholder-val="{{ true }}">
+        <div style="height:250px;border:1px dashed var(--line-2);border-radius:10px;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-3);flex:none"><span style="color:var(--ink-2);font-weight:500">{{ t.ad }}</span><span>300×250</span><span>home_sidebar</span></div>
+      </sc-if>
+    </aside>
+  </sc-if>
+  </div>
+</main>
+
+<footer style="border-top:1px solid var(--line);padding:20px {{ pad }}px {{ footPad }}px">
+  <div style="max-width:1440px;margin:0 auto;display:flex;gap:16px 24px;flex-wrap:wrap;align-items:center;font-size:13px;color:var(--ink-3)">
+    <span style="font-weight:800;color:var(--ink);letter-spacing:-0.04em;font-size:16px">nacp</span>
+    <span>{{ t.footer }}</span>
+    <div style="display:flex;gap:16px;margin-left:auto;flex-wrap:wrap"><a href="#">{{ t.fPartner }}</a><a href="#">{{ t.fRequest }}</a><a href="#">DMCA</a><a href="#">{{ t.fPrivacy }}</a></div>
+  </div>
+</footer>
+
+<div style="position:sticky;bottom:0;z-index:30;margin-top:auto">
+  <sc-if value="{{ barOpen }}" hint-placeholder-val="{{ true }}">
+    <div style="background:var(--surface);border-top:1px solid var(--line);box-shadow:0 -12px 32px rgba(0,0,0,0.22)">
+      <div style="max-width:1440px;margin:0 auto;padding:10px {{ pad }}px;display:flex;align-items:center;gap:16px">
+        <sc-if value="{{ desktop }}" hint-placeholder-val="{{ true }}">
+          <div style="flex:none;width:120px;display:flex;flex-direction:column;gap:3px">
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0.06em;color:var(--accent-text)">{{ t.forYouCaps }}</span>
+            <span style="font-size:13px;font-weight:700;line-height:1.35">{{ t.barSub }}</span>
+          </div>
+        </sc-if>
+        <div ref="{{ stripRef }}" style="flex:1;min-width:0;display:flex;gap:{{ barGap }}px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;scrollbar-width:none;padding:2px 0">
+          <sc-for list="{{ barPool }}" as="b" hint-placeholder-count="10">
+            <a href="{{ b.href }}" title="{{ b.title }}" style="flex:none;width:{{ barCover }}px;aspect-ratio:3/4;border-radius:10px;position:relative;overflow:hidden;scroll-snap-align:start;background:repeating-linear-gradient(135deg,rgba(255,255,255,0.035) 0 8px,transparent 8px 16px),{{ b.bg }}">
+              <span style="position:absolute;left:6px;top:6px;padding:1px 6px;border-radius:4px;background:rgba(0,0,0,0.55);color:#fff;font-size:9px;font-weight:700">{{ b.typeLabel }}</span>
+              <div style="position:absolute;inset:auto 0 0 0;padding:26px 8px 8px;background:linear-gradient(180deg,rgba(0,0,0,0),rgba(0,0,0,0.85));color:#fff">
+                <div style="font-size:12px;font-weight:800;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{{ b.title }}</div>
+                <div style="font-size:10px;color:rgba(255,255,255,0.75);margin-top:2px">{{ b.chLabel }} · ★ {{ b.rating }}</div>
+              </div>
+            </a>
+          </sc-for>
+        </div>
+        <button onClick="{{ closeBar }}" aria-label="close" style="flex:none;align-self:flex-start;width:32px;height:32px;border:0;border-radius:8px;background:var(--surface-2);color:var(--ink-2);font:inherit;font-size:15px;cursor:pointer">×</button>
+      </div>
+    </div>
+  </sc-if>
+  <sc-if value="{{ barClosed }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;justify-content:flex-end;padding:0 {{ pad }}px 10px;pointer-events:none">
+      <button onClick="{{ openBar }}" style="pointer-events:auto;height:38px;padding:0 16px;border:0;border-radius:999px;background:var(--accent);color:#fff;font:inherit;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.25)">{{ t.forYou }} ↑</button>
+    </div>
+  </sc-if>
+  <sc-if value="{{ mobile }}" hint-placeholder-val="{{ false }}">
+    <sc-if value="{{ ads }}" hint-placeholder-val="{{ true }}">
+      <div style="height:50px;display:flex;align-items:center;justify-content:center;gap:8px;background:var(--surface);border-top:1px dashed var(--line-2);font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink-3)"><span style="color:var(--ink-2);font-weight:500">{{ t.ad }}</span>320×50 · mobile_sticky</div>
+    </sc-if>
+    <nav style="display:grid;grid-template-columns:repeat(5,1fr);background:var(--bg);border-top:1px solid var(--line)">
+      <sc-for list="{{ bottomNav }}" as="b" hint-placeholder-count="5">
+        <a href="{{ b.href }}" style="height:58px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;font-size:11px;font-weight:700;color:{{ b.fg }};text-decoration:none"><span style="width:18px;height:3px;border-radius:2px;background:{{ b.bar }}"></span>{{ b.label }}</a>
+      </sc-for>
+    </nav>
+  </sc-if>
+</div>
+</div>
+
+<div style="position:fixed;right:16px;top:72px;z-index:100;display:flex;gap:6px;align-items:center;padding:6px;border-radius:12px;background:#16171A;color:#fff;font-family:'IBM Plex Mono',monospace;font-size:11px;box-shadow:0 8px 24px rgba(0,0,0,.25)">
+  <button onClick="{{ toggleAds }}" style="height:28px;padding:0 10px;border:0;border-radius:7px;background:#2A2D33;color:#fff;font:inherit;cursor:pointer">{{ adsBtn }}</button>
+  <button onClick="{{ toggleFrame }}" style="height:28px;padding:0 10px;border:0;border-radius:7px;background:#2A2D33;color:#fff;font:inherit;cursor:pointer">{{ frameBtn }}</button>
+  <a href="nacp%20Reader.dc.html" style="height:28px;padding:0 10px;border-radius:7px;background:#2A2D33;color:#fff;display:flex;align-items:center;text-decoration:none">reader →</a>
+  <a href="nacp%20Admin.dc.html" style="height:28px;padding:0 10px;border-radius:7px;background:#2A2D33;color:#fff;display:flex;align-items:center;text-decoration:none">admin →</a>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;showAds&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;frame&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;auto&quot;,&quot;mobile&quot;],&quot;default&quot;:&quot;auto&quot;,&quot;tsType&quot;:&quot;'auto'|'mobile'&quot;}}">
+const COMICS = [
+  { id:'langit', title:'Langit yang Retak', type:'Lokal', genre:'Fantasi', ch:128, v:84200, r:4.8, h:250, syn:{ id:'Sejak langit di atas Kota Arga retak, setiap malam turun serpihan cahaya yang memberi kekuatan pada siapa pun yang menyentuhnya. Raka, kurir paket biasa, tidak sengaja menyimpan serpihan terbesar.', en:'Ever since the sky over Arga City cracked, shards of light fall every night, granting power to whoever touches them. Raka, an ordinary courier, keeps the largest one by accident.' } },
+  { id:'pedang', title:'Pedang Ketujuh', type:'Manhwa', genre:'Aksi', ch:342, v:71900, r:4.7, h:20, syn:{ id:'Enam pedang legendaris sudah punya tuan. Yang ketujuh memilih anak penjaga gudang senjata yang belum pernah memegang pedang.', en:'Six legendary swords have found their masters. The seventh chooses an armory keeper’s son who has never held a blade.' } },
+  { id:'kedai', title:'Kedai Teh Musim Gugur', type:'Manga', genre:'Slice of life', ch:61, v:40300, r:4.9, h:60, syn:{ id:'Sebuah kedai teh kecil di kaki gunung, pemiliknya yang pendiam, dan pelanggan yang datang membawa cerita masing-masing.', en:'A small tea house at the foot of a mountain, its quiet owner, and customers who each bring a story.' } },
+  { id:'raja', title:'Raja Tanpa Mahkota', type:'Manhua', genre:'Fantasi', ch:915, v:66100, r:4.5, h:300, syn:{ id:'Pewaris takhta yang dibuang kembali sebagai murid sekte paling lemah, membawa ingatan dari kehidupan sebelumnya.', en:'A cast-out heir returns as a disciple of the weakest sect, carrying memories of his past life.' } },
+  { id:'sekolah', title:'Sekolah Malam', type:'Lokal', genre:'Horor', ch:47, v:38800, r:4.6, h:160, syn:{ id:'Kelas tambahan jam sembilan malam. Daftar absennya selalu bertambah satu nama.', en:'Extra class at nine at night. The attendance list always has one more name.' } },
+  { id:'pemburu', title:'Pemburu Level Nol', type:'Manhwa', genre:'Aksi', ch:210, v:59400, r:4.4, h:230 },
+  { id:'surat', title:'Surat untuk Hana', type:'Manga', genre:'Romansa', ch:33, v:22700, r:4.8, h:350 },
+  { id:'gerbang', title:'Gerbang Naga Giok', type:'Manhua', genre:'Wuxia', ch:588, v:31500, r:4.3, h:150 },
+  { id:'ojek', title:'Ojek Dimensi', type:'Lokal', genre:'Komedi', ch:72, v:27900, r:4.7, h:80 },
+  { id:'mercusuar', title:'Penjaga Mercusuar', type:'Manga', genre:'Misteri', ch:19, v:15200, r:4.6, h:210 },
+  { id:'istana', title:'Istana Bayangan', type:'Manhwa', genre:'Drama', ch:156, v:33100, r:4.5, h:280 },
+  { id:'koki', title:'Koki Sang Kaisar', type:'Manhua', genre:'Komedi', ch:301, v:29800, r:4.4, h:40 },
+  { id:'finis', title:'Garis Finis', type:'Manga', genre:'Olahraga', ch:240, v:24600, r:4.7, h:190 },
+  { id:'kota', title:'Kota Tanpa Hujan', type:'Lokal', genre:'Sci-fi', ch:12, v:9800, r:4.9, h:200 },
+  { id:'menara', title:'Pewaris Menara', type:'Manhwa', genre:'Fantasi', ch:98, v:20400, r:4.3, h:270 },
+  { id:'lentera', title:'Lentera Merah', type:'Manhua', genre:'Romansa', ch:77, v:17300, r:4.5, h:10 },
+  { id:'arus', title:'Arus Balik', type:'Lokal', genre:'Drama', ch:8, v:6100, r:4.6, h:220 },
+  { id:'bintang', title:'Bintang Ruang Ganti', type:'Manga', genre:'Olahraga', ch:5, v:4800, r:4.4, h:100 }
+];
+const MINS = [12, 34, 58, 95, 160, 240, 380, 520, 900, 1500, 2100, 2900];
+const T = {
+  id: { continue:'Lanjut Baca', history:'Riwayat', forYou:'Rekomendasi buat kamu', forYouSub:'Karena kamu baca Langit yang Retak dan Pedang Ketujuh', forYouCaps:'UNTUK KAMU', barSub:'Dipilih dari riwayat bacamu', read:'Baca', because:'Karena kamu baca', similarTo:'Mirip', ranking:'Peringkat', daily:'Harian', weekly:'Mingguan', latest:'Update Terbaru', newc:'Komik Baru', genre:'Jelajah Genre', seeAll:'Lihat semua', online:'pembaca online', search:'Cari judul, author, atau genre', searchShort:'Cari', premium:'Bebas iklan', all:'Semua', subnav:['Terbaru','Jadwal','Daftar Komik','Genre'], ad:'IKLAN', sponsored:'Bersponsor', newTag:'BARU', badge:'Pilihan buat kamu', start:'Mulai baca Ch 1', cont:'Lanjutkan Ch', seoTitle:'nacp: baca komik, manga, manhwa, dan manhua bahasa Indonesia', seoBody:'nacp adalah tempat baca komik berlisensi dalam Bahasa Indonesia. Setiap judul dirilis bersama publisher, scanlator, dan kreator yang memberi izin. Chapter baru tayang sesuai jadwal, bisa dibaca dengan scroll atau per halaman, dan riwayat bacamu tersimpan otomatis.', footer:'Semua konten dirilis bersama partner berlisensi.', fPartner:'Jadi partner', fRequest:'Request komik', fPrivacy:'Privasi', bn:['Beranda','Cari','Bookmark','Riwayat','Profil'], light:'Terang', dark:'Gelap', newShort:n=>`+${n}`, min:m=> m<60?`${m} mnt`: m<1440?`${Math.round(m/60)} jam`:`${Math.round(m/1440)} hari`, local:'Lokal', views:v=>`${(v/1000).toFixed(1).replace('.',',')}rb dilihat` },
+  en: { continue:'Continue Reading', history:'History', forYou:'Recommended for you', forYouSub:'Because you read Langit yang Retak and Pedang Ketujuh', forYouCaps:'FOR YOU', barSub:'Picked from your reading history', read:'Read', because:'Because you read', similarTo:'Like', ranking:'Ranking', daily:'Daily', weekly:'Weekly', latest:'Latest Updates', newc:'New Series', genre:'Browse Genres', seeAll:'See all', online:'readers online', search:'Search titles, authors, genres', searchShort:'Search', premium:'Go ad-free', all:'All', subnav:['Latest','Schedule','All Comics','Genres'], ad:'AD', sponsored:'Sponsored', newTag:'NEW', badge:'Picked for you', start:'Start reading Ch 1', cont:'Continue Ch', seoTitle:'nacp: read comics, manga, manhwa and manhua in Indonesian', seoBody:'nacp is a licensed comic reading site in Indonesian. Every title is released together with publishers, scanlators and creators who granted permission. New chapters go live on schedule, read them by scrolling or page by page, and your history is saved automatically.', footer:'All content released with licensed partners.', fPartner:'Become a partner', fRequest:'Request a comic', fPrivacy:'Privacy', bn:['Home','Search','Bookmarks','History','Profile'], light:'Light', dark:'Dark', newShort:n=>`+${n}`, min:m=> m<60?`${m}m`: m<1440?`${Math.round(m/60)}h`:`${Math.round(m/1440)}d`, local:'Local', views:v=>`${(v/1000).toFixed(1)}k views` }
+};
+const byId0 = {};
+const CONTINUE = [ ['langit',126], ['pedang',339], ['kedai',61], ['sekolah',44], ['raja',900], ['ojek',70] ];
+const GENRES = ['Fantasi','Aksi','Romansa','Horor','Komedi','Drama','Slice of life','Misteri','Wuxia','Olahraga','Sci-fi'];
+const HERO = ['langit','pedang','kedai','raja','sekolah'];
+const READER = 'nacp%20Reader.dc.html';
+const DETAIL = 'nacp%20Detail.dc.html';
+
+const store = { get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
+const DEFAULT_BM = ['langit','pedang','kedai','sekolah','raja','ojek','surat'];
+class Component extends DCLogic {
+  state = {
+    theme: localStorage.getItem('nacp-theme') || 'dark',
+    lang: localStorage.getItem('nacp-lang') || 'id',
+    type: 'Semua', rankTab: 'daily', genre: 'Fantasi', online: 11204, w: 1280, hero: 0, ads: null, frame: null, barOpen: true, barIdx: 0, premium: store.get('nacp-premium', false), prog: store.get('nacp-progress', {})
+  };
+  rootRef = React.createRef();
+  stripRef = React.createRef();
+  slide(dir) {
+    const el = this.stripRef.current; if (!el) return;
+    const step = (el.firstElementChild ? el.firstElementChild.offsetWidth + 12 : 140) * (dir > 0 ? 2 : -2);
+    if (dir > 0 && el.scrollLeft + el.clientWidth >= el.scrollWidth - 4) el.scrollTo({ left: 0 });
+    else el.scrollBy({ left: step });
+  }
+  componentDidMount() {
+    this.measure = () => { const el = this.rootRef.current; this.setState({ w: el && el.clientWidth ? el.clientWidth : innerWidth }); };
+    this.measure(); setTimeout(this.measure, 50);
+    addEventListener('resize', this.measure);
+    if (this.rootRef.current) { this.ro = new ResizeObserver(this.measure); this.ro.observe(this.rootRef.current); }
+    this.iv = setInterval(() => this.setState(s => ({ online: s.online + Math.round((Math.random() - 0.45) * 36) })), 2500);
+    this.hv = setInterval(() => this.setState(s => ({ hero: (s.hero + 1) % HERO.length })), 6000);
+  }
+  componentDidUpdate() { const el = this.rootRef.current; if (el && el.clientWidth && Math.abs(el.clientWidth - this.state.w) > 2) this.setState({ w: el.clientWidth }); }
+  componentWillUnmount() { removeEventListener('resize', this.measure); this.ro && this.ro.disconnect(); clearInterval(this.iv); clearInterval(this.hv); clearInterval(this.sv); }
+  set(k, v) { this.setState({ [k]: v }); }
+  renderVals() {
+    const s = this.state, p = this.props, t = T[s.lang];
+    const ads = (s.ads ?? p.showAds ?? true) && !s.premium;
+    if (!byId0.langit) COMICS.forEach(c => { byId0[c.id] = c; });
+    const progMap = { ...Object.fromEntries(CONTINUE), ...s.prog };
+    const contEntries = [...Object.keys(s.prog).filter(id => byId0[id]), ...CONTINUE.map(x => x[0]).filter(id => !(id in s.prog))].map(id => [id, progMap[id]]);
+    const frame = s.frame ?? p.frame ?? 'auto';
+    const mobile = frame === 'mobile' || s.w < 760;
+    const wide = !mobile && s.w >= 1100;
+    const typeLabel = ty => ty === 'Lokal' ? t.local : ty;
+    const byId = Object.fromEntries(COMICS.map(c => [c.id, c]));
+    const pool = s.type === 'Semua' ? COMICS : COMICS.filter(c => c.type === s.type);
+    const card = c => ({ ...c, href: DETAIL + '?c=' + c.id, readHref: READER, bg: `oklch(0.42 0.09 ${c.h})`, typeLabel: typeLabel(c.type), rating: c.r.toFixed(1), chLabel: `Ch ${c.ch}`, views: t.views(c.v), syn: c.syn ? c.syn[s.lang] : '' });
+
+    const types = ['Semua','Manga','Manhwa','Manhua','Lokal'].map(ty => { const a = s.type === ty; return { label: ty === 'Semua' ? t.all : typeLabel(ty), bg: a ? 'var(--surface-2)' : 'transparent', fg: a ? 'var(--ink)' : 'var(--ink-3)', chipBg: a ? 'var(--ink)' : 'var(--surface)', chipFg: a ? 'var(--bg)' : 'var(--ink-2)', onClick: () => this.set('type', ty) }; });
+
+    const h = byId[HERO[s.hero]];
+    const hRead = progMap[h.id];
+    const hero = { ...card(h), badge: t.badge, cta: hRead ? `${t.cont} ${hRead}` : t.start, bg: `oklch(0.38 0.1 ${h.h})` };
+    const heroDots = HERO.map((_, i) => ({ w: i === s.hero ? 22 : 6, bg: i === s.hero ? '#fff' : 'rgba(255,255,255,0.4)', onClick: e => { e.preventDefault(); this.set('hero', i); } }));
+    const heroSideList = [HERO[(s.hero + 1) % HERO.length], HERO[(s.hero + 2) % HERO.length]].map(id => ({ ...card(byId[id]), bg: `oklch(0.36 0.08 ${byId[id].h})` }));
+
+    const continueList = contEntries.map(([id, read]) => { const c = byId[id]; const nw = c.ch - read; return { ...card(c), pct: Math.round(read / c.ch * 100), progressLabel: `Ch ${read} / ${c.ch}`, hasNew: nw > 0, newShort: t.newShort(nw) }; });
+
+    const sorted = [...pool].sort((a, b) => s.rankTab === 'daily' ? b.v - a.v : (b.r * 1e5 + b.ch) - (a.r * 1e5 + a.ch));
+    const rankCount = mobile ? 6 : wide ? 10 : 8;
+    const ranking = sorted.slice(0, rankCount).map((c, i) => ({ ...card(c), rank: i + 1 }));
+    const rankTabs = [['daily', t.daily], ['weekly', t.weekly]].map(([k, l]) => ({ label: l, bg: s.rankTab === k ? 'var(--bg)' : 'transparent', fg: s.rankTab === k ? 'var(--ink)' : 'var(--ink-3)', onClick: () => this.set('rankTab', k) }));
+
+    const upd = pool.slice(0, mobile ? 8 : 11).map((c, i) => { const m = MINS[i % MINS.length]; return { ...card(c), isItem: true, isAd: false, fresh: m < 60, chapters: [ { href: READER, label: `Ch ${c.ch}`, time: t.min(m), timeColor: m < 60 ? 'var(--accent-text)' : 'var(--ink-3)' }, { href: READER, label: `Ch ${c.ch - 1}`, time: t.min(m * 7 + 1440), timeColor: 'var(--ink-3)' } ] }; });
+    if (ads && upd.length > 4) upd.splice(4, 0, { isAd: true, isItem: false });
+
+    const recs = ['raja','pemburu','menara','gerbang','istana','kota','lentera','mercusuar','surat'].map(id => byId[id]).filter(c => pool.includes(c)).map(card);
+    const newList = [...COMICS].sort((a, b) => a.ch - b.ch).filter(c => pool.includes(c)).slice(0, mobile ? 4 : 6).map(card);
+    const genres = GENRES.map(g => ({ label: g, bg: s.genre === g ? 'var(--ink)' : 'var(--surface)', fg: s.genre === g ? 'var(--bg)' : 'var(--ink-2)', onClick: () => this.set('genre', g) }));
+    const genreList = COMICS.filter(c => c.genre === s.genre).concat(COMICS.filter(c => c.genre !== s.genre)).slice(0, mobile ? 4 : 6).map(card);
+
+    const reasons = [`${t.because} Langit yang Retak`, `${t.similarTo} Pedang Ketujuh`, `${t.because} Raja Tanpa Mahkota`, `${t.similarTo} Sekolah Malam`, `${t.because} Kedai Teh Musim Gugur`];
+    const barPool = recs.map((c, i) => ({ ...c, reason: reasons[i % reasons.length] }));
+    const per = mobile ? 1 : wide ? 3 : 2;
+    const pages = Math.max(1, Math.ceil(barPool.length / per));
+    const pg = s.barIdx % pages;
+    const barRecs = barPool.slice(pg * per, pg * per + per);
+    return {
+      premLabel: s.premium ? 'Premium ✓' : t.premium,
+      onSearchKey: e => { if (e.key === 'Enter') location.href = 'nacp%20Halaman.dc.html?p=cari'; },
+      barOpen: s.barOpen, barClosed: !s.barOpen, barPool: COMICS.filter(c => !contEntries.some(x => x[0] === c.id)).map(card), stripRef: this.stripRef, barCover: mobile ? 96 : 132, barGap: mobile ? 8 : 12, slidePrev: () => this.slide(-1), slideNext: () => this.slide(1),
+      barDots: Array.from({ length: Math.min(pages, 6) }, (_, i) => ({ w: i === pg ? 14 : 5, bg: i === pg ? 'var(--accent)' : 'var(--line-2)', onClick: () => this.set('barIdx', i) })),
+      closeBar: () => this.set('barOpen', false), openBar: () => this.set('barOpen', true),
+      theme: s.theme, t, mobile, desktop: !mobile, ads, rootRef: this.rootRef,
+      outerBg: frame === 'mobile' ? '#2A2C31' : 'var(--bg)', frameMax: frame === 'mobile' ? '390px' : '100%',
+      pad: mobile ? 14 : 32, mainTop: mobile ? 14 : 24, secGap: mobile ? 32 : 48, footPad: mobile ? 24 : 32,
+      types, subnav: t.subnav.map((l, i) => ({ label: l, href: 'nacp%20Halaman.dc.html?p=' + ['cari','jadwal','cari','cari'][i] })), showSubnav: !mobile && s.w >= 1240, showSearch: !mobile && s.w >= 1080, searchBtn: mobile || s.w < 1080,
+      hero, heroDots, heroSide: wide, heroSideList,
+      heroCols: wide ? 'minmax(0,2.2fr) minmax(0,1fr)' : '1fr', heroH: mobile ? 460 : wide ? 480 : 420, heroPad: mobile ? 18 : 32, heroTitle: mobile ? 34 : 54,
+      continueList, contW: mobile ? 132 : 180,
+      topAdW: mobile ? 320 : 728, topAdH: mobile ? 100 : 90, topAdSize: mobile ? '320×100' : '728×90',
+      ranking, rankTabs, rankMin: mobile ? 150 : 200, rankNum: mobile ? 52 : 72,
+      updates: upd, updCols: 'minmax(0,1fr)', sideAd: false, recSide: wide, recInline: !wide, recsSide: recs.slice(0, 6), bodyCols: wide ? 'minmax(0,1fr) 340px' : 'minmax(0,1fr)',
+      gridMin: mobile ? 150 : 190, gridGap: mobile ? 12 : 18,
+      recs, recW: mobile ? 160 : 240, newList, genres, genreList,
+      onlineLabel: s.online.toLocaleString(s.lang === 'id' ? 'id-ID' : 'en-US'),
+      langLabel: s.lang === 'id' ? 'ID' : 'EN', themeLabel: s.theme === 'light' ? t.dark : t.light,
+      toggleLang: () => { const l = s.lang === 'id' ? 'en' : 'id'; localStorage.setItem('nacp-lang', l); this.set('lang', l); },
+      toggleTheme: () => { const th = s.theme === 'light' ? 'dark' : 'light'; localStorage.setItem('nacp-theme', th); this.set('theme', th); },
+      bottomNav: t.bn.map((l, i) => ({ label: l, href: i === 0 ? '#' : 'nacp%20Halaman.dc.html?p=' + ['','cari','bookmark','riwayat','profil'][i], fg: i === 0 ? 'var(--ink)' : 'var(--ink-3)', bar: i === 0 ? 'var(--accent)' : 'transparent' })),
+      adsBtn: ads ? 'iklan: on' : 'iklan: off', toggleAds: () => this.set('ads', !ads),
+      frameBtn: frame === 'mobile' ? 'mobile' : 'desktop', toggleFrame: () => this.set('frame', frame === 'mobile' ? 'auto' : 'mobile')
+    };
+  }
+}
+</script>
+</body>
+</html>

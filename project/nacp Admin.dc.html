@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<title>nacp admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root,[data-theme="light"]{--bg:#F6F6F4;--surface:#FFFFFF;--surface-2:#EFEFEC;--ink:#16171A;--ink-2:#50545D;--ink-3:#868A93;--line:#E3E3DF;--line-2:#CFCFCA;--accent:#3E7BE6;--accent-text:#2A62C9;--accent-soft:#E7EEFB}
+[data-theme="dark"]{--bg:#0F1013;--surface:#17191D;--surface-2:#1F2127;--ink:#ECEDEF;--ink-2:#A4A8B0;--ink-3:#6F737B;--line:#272A31;--line-2:#363A42;--accent:#3E7BE6;--accent-text:#86ABF2;--accent-soft:#1A2640}
+body{margin:0;background:#0F1013;font-family:'Plus Jakarta Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:var(--accent-text);text-decoration:none}a:hover{text-decoration:underline}
+*{box-sizing:border-box}
+input[type=range]{accent-color:#3E7BE6;width:100%}
+</style>
+</helmet>
+<div data-theme="{{ theme }}" data-screen-label="Admin" style="min-height:100vh;background:var(--bg);color:var(--ink);display:grid;grid-template-columns:{{ shellCols }}">
+
+<sc-if value="{{ wide }}" hint-placeholder-val="{{ true }}">
+<aside style="border-right:1px solid var(--line);background:var(--surface);padding:18px 12px;display:flex;flex-direction:column;gap:4px;position:sticky;top:0;height:100vh;overflow-y:auto">
+  <a href="nacp%20Beranda.dc.html" style="display:flex;align-items:center;gap:8px;color:var(--ink);font-weight:800;font-size:20px;letter-spacing:-0.05em;padding:4px 10px 18px;text-decoration:none"><span style="width:10px;height:10px;background:var(--accent);border-radius:3px"></span>nacp<span style="font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;letter-spacing:0;color:var(--ink-3);margin-left:2px">admin</span></a>
+  <sc-for list="{{ nav }}" as="n" hint-placeholder-count="10">
+    <a href="{{ n.href }}" onClick="{{ n.onClick }}" style="display:flex;align-items:center;justify-content:space-between;padding:9px 10px;border-radius:8px;font-size:13px;font-weight:600;color:{{ n.fg }};background:{{ n.bg }};text-decoration:none">{{ n.label }}<span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink-3)">{{ n.badge }}</span></a>
+  </sc-for>
+  <div style="margin-top:auto;padding:12px 10px 0;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:8px">
+    <div style="font-size:11px;font-weight:700;color:var(--ink-3)">Lihat sebagai</div>
+    <div style="display:flex;background:var(--surface-2);border-radius:8px;padding:3px">
+      <sc-for list="{{ roles }}" as="r" hint-placeholder-count="3">
+        <button onClick="{{ r.onClick }}" style="flex:1;height:28px;border:0;border-radius:6px;background:{{ r.bg }};color:{{ r.fg }};font:inherit;font-size:11px;font-weight:600;cursor:pointer">{{ r.label }}</button>
+      </sc-for>
+    </div>
+    <button onClick="{{ toggleTheme }}" style="height:30px;border:1px solid var(--line);background:var(--bg);color:var(--ink-2);border-radius:8px;font:inherit;font-size:12px;font-weight:600;cursor:pointer">{{ themeLabel }}</button>
+  </div>
+</aside>
+</sc-if>
+
+<main style="min-width:0;padding:24px {{ pad }}px 60px;display:flex;flex-direction:column;gap:22px">
+  <sc-if value="{{ narrow }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:4px">
+      <sc-for list="{{ nav }}" as="n" hint-placeholder-count="10">
+        <a href="{{ n.href }}" onClick="{{ n.onClick }}" style="padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:{{ n.bg }};color:{{ n.fg }};font-size:12px;font-weight:700;white-space:nowrap;text-decoration:none">{{ n.label }}</a>
+      </sc-for>
+    </div>
+  </sc-if>
+  <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap">
+    <div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-3);margin-bottom:6px">{{ crumb }}</div>
+      <h1 style="margin:0;font-size:26px;font-weight:800;letter-spacing:-0.03em">{{ secTitle }}</h1>
+    </div>
+    <div style="font-size:12px;color:var(--ink-3)">Masuk sebagai <b style="color:var(--ink-2)">{{ who }}</b></div>
+  </div>
+
+  <sc-if value="{{ sDashboard }}" hint-placeholder-val="{{ true }}">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px">
+      <sc-for list="{{ kpis }}" as="k" hint-placeholder-count="4">
+        <div style="padding:16px;border-radius:12px;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;gap:6px">
+          <div style="font-size:12px;font-weight:600;color:var(--ink-3)">{{ k.label }}</div>
+          <div style="font-size:24px;font-weight:800;letter-spacing:-0.03em">{{ k.value }}</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:{{ k.deltaColor }}">{{ k.delta }}</div>
+        </div>
+      </sc-for>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;align-items:start">
+      <div style="padding:18px;border-radius:14px;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;gap:4px">
+        <div style="font-size:16px;font-weight:800;margin-bottom:6px">Perlu perhatian</div>
+        <sc-for list="{{ todo }}" as="td" hint-placeholder-count="4">
+          <a href="{{ td.href }}" onClick="{{ td.onClick }}" style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-top:1px solid var(--line);color:var(--ink);text-decoration:none">
+            <span style="display:flex;flex-direction:column;gap:2px"><span style="font-size:14px;font-weight:700">{{ td.label }}</span><span style="font-size:12px;color:var(--ink-3)">{{ td.sub }}</span></span>
+            <span style="min-width:28px;height:28px;padding:0 8px;border-radius:999px;background:{{ td.bg }};color:{{ td.fg }};display:grid;place-items:center;font-size:12px;font-weight:800">{{ td.count }}</span>
+          </a>
+        </sc-for>
+      </div>
+      <div style="padding:18px;border-radius:14px;background:var(--surface);border:1px solid var(--line)">
+        <div style="font-size:16px;font-weight:800;margin-bottom:14px">Judul teratas minggu ini</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:12px">
+          <sc-for list="{{ topTitles }}" as="c" hint-placeholder-count="6">
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <div style="position:relative;aspect-ratio:3/4;border-radius:10px;overflow:hidden;background:repeating-linear-gradient(135deg,rgba(255,255,255,0.035) 0 8px,transparent 8px 16px),{{ c.bg }}">
+                <span style="position:absolute;left:8px;bottom:4px;font-size:36px;line-height:1;font-weight:800;color:#fff;letter-spacing:-0.05em">{{ c.rank }}</span>
+              </div>
+              <div style="font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.title }}</div>
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-3)">{{ c.views }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ sTitles }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <input value="{{ tq }}" onChange="{{ onTq }}" placeholder="Cari judul" style="height:38px;width:220px;max-width:100%;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:9px;padding:0 12px;font:inherit;font-size:13px"></input>
+      <sc-for list="{{ typeFilters }}" as="f" hint-placeholder-count="5">
+        <button onClick="{{ f.onClick }}" style="height:34px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:{{ f.bg }};color:{{ f.fg }};font:inherit;font-size:12px;font-weight:700;cursor:pointer">{{ f.label }}</button>
+      </sc-for>
+      <button onClick="{{ newTitle }}" style="margin-left:auto;height:38px;padding:0 16px;border:0;background:var(--accent);color:#fff;border-radius:9px;font:inherit;font-size:13px;font-weight:700;cursor:pointer">+ Judul baru</button>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:18px">
+      <sc-for list="{{ titleCards }}" as="c" hint-placeholder-count="12">
+        <button onClick="{{ c.onOpen }}" style="display:flex;flex-direction:column;gap:8px;padding:0;border:0;background:transparent;color:var(--ink);font:inherit;text-align:left;cursor:pointer">
+          <div style="position:relative;width:100%;aspect-ratio:3/4;border-radius:12px;overflow:hidden;background:repeating-linear-gradient(135deg,rgba(255,255,255,0.035) 0 10px,transparent 10px 20px),{{ c.bg }}">
+            <span style="position:absolute;left:8px;top:8px;padding:3px 7px;border-radius:6px;background:rgba(0,0,0,0.55);color:#fff;font-size:11px;font-weight:700">{{ c.type }}</span>
+            <span style="position:absolute;right:8px;top:8px;padding:3px 7px;border-radius:6px;background:{{ c.statusBg }};color:#fff;font-size:11px;font-weight:700">{{ c.status }}</span>
+          </div>
+          <div style="font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%">{{ c.title }}</div>
+          <div style="font-size:12px;color:var(--ink-3)">{{ c.ch }} ch · {{ c.partner }}</div>
+        </button>
+      </sc-for>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ sUpload }}" hint-placeholder-val="{{ false }}">
+    <div style="display:grid;grid-template-columns:{{ upCols }};gap:18px;align-items:start">
+      <div style="display:flex;flex-direction:column;gap:16px;min-width:0">
+
+        <div style="padding:18px;border-radius:14px;background:var(--surface);border:1px solid var(--line);display:flex;gap:18px;align-items:stretch;flex-wrap:wrap">
+          <div style="width:120px;flex:none;aspect-ratio:3/4;border-radius:10px;position:relative;overflow:hidden;background:repeating-linear-gradient(135deg,rgba(255,255,255,0.035) 0 8px,transparent 8px 16px),{{ upC.bg }}"><span style="position:absolute;left:7px;top:7px;padding:2px 6px;border-radius:5px;background:rgba(0,0,0,0.55);color:#fff;font-size:10px;font-weight:700">{{ upC.type }}</span></div>
+          <div style="flex:1;min-width:220px;display:flex;flex-direction:column;gap:10px">
+            <label style="display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:600;color:var(--ink-2)">Judul<select value="{{ upTitle }}" onChange="{{ onUpTitle }}" style="height:40px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:9px;padding:0 12px;font:inherit;font-size:14px;font-weight:700"><sc-for list="{{ titleOpts }}" as="o" hint-placeholder-count="6"><option value="{{ o.id }}">{{ o.title }}</option></sc-for></select></label>
+            <div style="display:flex;gap:18px;flex-wrap:wrap;font-size:12px;color:var(--ink-3)">
+              <span>Chapter terakhir <b style="color:var(--ink)">{{ upC.lastCh }}</b> · {{ upC.lastDate }}</span>
+              <span>Jadwal <b style="color:var(--ink)">{{ upC.sched }}</b></span>
+              <span>Partner <b style="color:var(--ink)">{{ upC.partner }}</b></span>
+            </div>
+            <div style="display:flex;background:var(--surface-2);border-radius:9px;padding:3px;align-self:flex-start">
+              <sc-for list="{{ batchSeg }}" as="o" hint-placeholder-count="2"><button onClick="{{ o.onClick }}" style="height:32px;padding:0 14px;border:0;border-radius:7px;background:{{ o.bg }};color:{{ o.fg }};font:inherit;font-size:12px;font-weight:700;cursor:pointer">{{ o.label }}</button></sc-for>
+            </div>
+          </div>
+        </div>
+
+        <sc-if value="{{ isSingle }}" hint-placeholder-val="{{ true }}">
+          <div style="padding:18px;border-radius:14px;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;gap:14px">
+            <div style="display:flex;flex-direction:column;gap:2px"><div style="font-size:15px;font-weight:800">Info chapter</div></div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px">
+              <label style="display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:600;color:var(--ink-2)">Nomor chapter<input value="{{ upCh }}" onChange="{{ onUpCh }}" style="height:40px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:9px;padding:0 12px;font:inherit;font-size:14px;border-color:{{ chCheck.border }}"></input><span style="font-size:11px;font-weight:600;color:{{ chCheck.color }}">{{ chCheck.label }}</span></label>
+              <label style="display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:600;color:var(--ink-2)">Season / volume<input value="{{ upVol }}" onChange="{{ onUpVol }}" placeholder="opsional" style="height:40px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:9px;padding:0 12px;font:inherit;font-size:14px"></input></label>
+              <label style="display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:600;color:var(--ink-2);grid-column:span 2">Judul chapter<input value="{{ upName }}" onChange="{{ onUpName }}" placeholder="mis. Retakan baru" style="height:40px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:9px;padding:0 12px;font:inherit;font-size:14px"></input></label>
+            </div>
+            <label style="display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:600;color:var(--ink-2)">Catatan untuk pembaca<textarea rows="2" value="{{ upNote }}" onChange="{{ onUpNote }}" placeholder="Tampil di akhir chapter, mis. ucapan terima kasih atau info jeda rilis" style="border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:9px;padding:10px 12px;font:inherit;font-size:13px;resize:vertical"></textarea></label>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));column-gap:24px;border-top:1px solid var(--line)">
+              <button onClick="{{ tExtra.onClick }}" style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border:0;background:transparent;color:var(--ink);font:inherit;text-align:left;cursor:pointer;width:100%"><span style="display:flex;flex-direction:column;gap:2px"><span style="font-size:13px;font-weight:700">Chapter spesial / extra</span><span style="font-size:12px;color:var(--ink-3)">Ditandai “Extra”, tidak menggeser nomor</span></span><span style="width:40px;height:24px;flex:none;border-radius:999px;background:{{ tExtra.track }};padding:3px;display:flex;justify-content:{{ tExtra.justify }}"><span style="width:18px;height:18px;border-radius:50%;background:#fff"></span></span></button>
+              <button onClick="{{ tSens.onClick }}" style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border:0;background:transparent;color:var(--ink);font:inherit;text-align:left;cursor:pointer;width:100%"><span style="display:flex;flex-direction:column;gap:2px"><span style="font-size:13px;font-weight:700">Konten sensitif</span><span style="font-size:12px;color:var(--ink-3)">Pembaca lihat peringatan sebelum membuka</span></span><span style="width:40px;height:24px;flex:none;border-radius:999px;background:{{ tSens.track }};padding:3px;display:flex;justify-content:{{ tSens.justify }}"><span style="width:18px;height:18px;border-radius:50%;background:#fff"></span></span></button>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isBatch }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:18px;border-radius:14px;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;gap:12px">
+            <div style="display:flex;flex-direction:column;gap:2px"><div style="font-size:15px;font-weight:800">Batch upload</div><div style="font-size:12px;color:var(--ink-3)">Upload ZIP/CBZ atau folder per chapter, nomor dideteksi dari nama file</div></div>
+            <sc-for list="{{ batchList }}" as="bt" hint-placeholder-count="3">
+              <div style="display:grid;grid-template-columns:90px minmax(0,1fr) 90px 120px 120px;gap:12px;align-items:center;padding:10px 12px;border-radius:10px;background:var(--bg);border:1px solid var(--line)">
+                <span style="font-size:14px;font-weight:800">Ch {{ bt.n }}</span>
+                <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ bt.file }}</span>
+                <span style="font-size:12px;color:var(--ink-3)">{{ bt.pages }} hal.</span>
+                <div style="height:6px;border-radius:3px;background:var(--surface-2);overflow:hidden"><div style="height:100%;width:{{ bt.pct }}%;background:#3E7BE6"></div></div>
+                <span style="font-size:12px;font-weight:700;color:{{ bt.stColor }}">{{ bt.when }}</span>
+              </div>
+            </sc-for>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button onClick="{{ addBatch }}" style="height:36px;padding:0 14px;border:1px dashed var(--line-2);background:transparent;color:var(--ink-2);border-radius:9px;font:inherit;font-size:13px;font-weight:700;cursor:pointer">+ Tambah ZIP contoh</button>
+              <span style="font-size:12px;color:var(--ink-3);align-self:center">Jadwal otomatis berurutan mengikuti jadwal rilis judul ({{ upC.sched }})</span>
+            </div>
+          </div>
+        </sc-if>
+
+        <div style="padding:18px;border-radius:14px;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;gap:14px">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
+            <div style="display:flex;flex-direction:column;gap:2px"><div style="font-size:15px;font-weight:800">Gambar</div><div style="font-size:12px;color:var(--ink-3)">Urutan halaman ikut nama file (001.jpg, 002.jpg …), bisa diubah dengan drag</div></div>
+            <div style="display:flex;background:var(--surface-2);border-radius:9px;padding:3px">
+              <sc-for list="{{ srcSeg }}" as="o" hint-placeholder-count="3"><button onClick="{{ o.onClick }}" style="height:30px;padding:0 12px;border:0;border-radius:7px;background:{{ o.bg }};color:{{ o.fg }};font:inherit;font-size:12px;font-weight:700;cursor:pointer">{{ o.label }}</button></sc-for>
+            </div>
+          </div>
+          <div onDrop="{{ onDrop }}" onDragOver="{{ onDragOver }}" onDragLeave="{{ onDragLeave }}" style="padding:26px;border-radius:12px;border:2px dashed {{ dropBorder }};background:{{ dropBg }};display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center">
+            <div style="font-size:16px;font-weight:800">{{ dropTitle }}</div>
+            <div style="font-size:12px;color:var(--ink-3)">{{ dropSub }}</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:4px">
+              <label style="height:38px;padding:0 16px;border-radius:9px;background:var(--accent);color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;cursor:pointer">{{ pickLabel }}<input type="file" multiple="{{ true }}" accept="{{ accept }}" onChange="{{ onFiles }}" style="display:none"></input></label>
+              <button onClick="{{ addDemo }}" style="height:38px;padding:0 14px;border:1px solid var(--line);background:var(--surface);color:var(--ink-2);border-radius:9px;font:inherit;font-size:13px;font-weight:600;cursor:pointer">Pakai 14 gambar contoh</button>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));column-gap:24px;row-gap:4px;padding:4px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
+            <button onClick="{{ oSplit.onClick }}" style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border:0;background:transparent;color:var(--ink);font:inherit;text-align:left;cursor:pointer;width:100%"><span style="display:flex;flex-direction:column;gap:2px"><span style="font-size:13px;font-weight:700">Auto-split gambar panjang</span><span style="font-size:12px;color:var(--ink-3)">Potong strip webtoon jadi halaman</span></span><span style="width:40px;height:24px;flex:none;border-radius:999px;background:{{ oSplit.track }};padding:3px;display:flex;justify-content:{{ oSplit.justify }}"><span style="width:18px;height:18px;border-radius:50%;background:#fff"></span></span></button>
+            <button onClick="{{ oTrim.onClick }}" style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border:0;background:transparent;color:var(--ink);font:inherit;text-align:left;cursor:pointer;width:100%"><span style="display:flex;flex-direction:column;gap:2px"><span style="font-size:13px;font-weight:700">Trim tepi kosong</span><span style="font-size:12px;color:var(--ink-3)">Buang margin putih/hitam</span></span><span style="width:40px;height:24px;flex:none;border-radius:999px;background:{{ oTrim.track }};padding:3px;display:flex;justify-content:{{ oTrim.justify }}"><span style="width:18px;height:18px;border-radius:50%;background:#fff"></span></span></button>
+            <button onClick="{{ oWm.onClick }}" style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border:0;background:transparent;color:var(--ink);font:inherit;text-align:left;cursor:pointer;width:100%"><span style="display:flex;flex-direction:column;gap:2px"><span style="font-size:13px;font-weight:700">Watermark partner</span><span style="font-size:12px;color:var(--ink-3)">Logo kecil di pojok bawah halaman terakhir</span></span><span style="width:40px;height:24px;flex:none;border-radius:999px;background:{{ oWm.track }};padding:3px;display:flex;justify-content:{{ oWm.justify }}"><span style="width:18px;height:18px;border-radius:50%;background:#fff"></span></span></button>
+            <button onClick="{{ oDup.onClick }}" style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border:0;background:transparent;color:var(--ink);font:inherit;text-align:left;cursor:pointer;width:100%"><span style="display:flex;flex-direction:column;gap:2px"><span style="font-size:13px;font-weight:700">Deteksi duplikat & resolusi</span><span style="font-size:12px;color:var(--ink-3)">Tandai halaman bermasalah</span></span><span style="width:40px;height:24px;flex:none;border-radius:999px;background:{{ oDup.track }};padding:3px;display:flex;justify-content:{{ oDup.justify }}"><span style="width:18px;height:18px;border-radius:50%;background:#fff"></span></span></button>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px">
+            <sc-if value="{{ oSplitOn }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;flex-direction:column;gap:6px"><div style="display:flex;justify-content:space-between;font-size:12px"><span style="font-weight:700;color:var(--ink-3)">Tinggi potong</span><span style="font-family:'IBM Plex Mono',monospace;color:var(--ink-2)">{{ splitH }}px</span></div><input type="range" min="1200" max="3200" step="100" value="{{ splitH }}" onChange="{{ onSplitH }}"></input></div>
+            </sc-if>
+            <div style="display:flex;flex-direction:column;gap:6px"><div style="display:flex;justify-content:space-between;font-size:12px"><span style="font-weight:700;color:var(--ink-3)">Kualitas</span><span style="font-family:'IBM Plex Mono',monospace;color:var(--ink-2)">{{ upQ }}</span></div><input type="range" min="50" max="100" step="5" value="{{ upQ }}" onChange="{{ onUpQ }}"></input></div>
+            <label style="display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:600;color:var(--ink-2)">Lebar maks<select value="{{ maxW }}" onChange="{{ onMaxW }}" style="height:36px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:9px;padding:0 12px;font:inherit;font-size:13px"><sc-for list="{{ maxWOpts }}" as="o" hint-placeholder-count="4"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select></label>
+            <div style="display:flex;flex-direction:column;gap:6px"><div style="font-size:12px;font-weight:700;color:var(--ink-3)">Format</div><div style="display:flex;background:var(--surface-2);border-radius:9px;padding:3px"><sc-for list="{{ fmtSeg }}" as="o" hint-placeholder-count="2"><button onClick="{{ o.onClick }}" style="flex:1;height:30px;border:0;border-radius:7px;background:{{ o.bg }};color:{{ o.fg }};font:inherit;font-size:12px;font-weight:700;cursor:pointer">{{ o.label }}</button></sc-for></div></div>
+          </div>
+
+          <sc-if value="{{ hasPages }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 12px;border-radius:10px;background:var(--bg);border:1px solid var(--line)">
+              <div style="display:flex;gap:18px;flex-wrap:wrap;font-size:12px;color:var(--ink-3)">
+                <span><b style="color:var(--ink);font-size:14px">{{ pageCount }}</b> halaman</span>
+                <span><b style="color:var(--ink);font-size:14px">{{ doneCount }}</b> terunggah</span>
+                <span>{{ sizeLine }}</span>
+                <span style="color:{{ warnColor }};font-weight:700">{{ warnLine }}</span>
+              </div>
+              <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+                <div style="display:flex;background:var(--surface-2);border-radius:8px;padding:3px"><sc-for list="{{ viewSeg }}" as="o" hint-placeholder-count="2"><button onClick="{{ o.onClick }}" style="height:28px;padding:0 10px;border:0;border-radius:6px;background:{{ o.bg }};color:{{ o.fg }};font:inherit;font-size:12px;font-weight:700;cursor:pointer">{{ o.label }}</button></sc-for></div>
+                <button onClick="{{ sortPages }}" style="border:0;background:transparent;padding:0;color:var(--accent-text);font:inherit;font-size:12px;font-weight:700;cursor:pointer">Urutkan nama</button>
+                <button onClick="{{ clearPages }}" style="border:0;background:transparent;padding:0;color:var(--ink-3);font:inherit;font-size:12px;font-weight:600;cursor:pointer">Hapus semua</button>
+              </div>
+            </div>
+            <sc-if value="{{ viewGrid }}" hint-placeholder-val="{{ true }}">
+              <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px">
+                <sc-for list="{{ pages }}" as="pg" hint-placeholder-count="8">
+                  <div draggable="true" onDragStart="{{ pg.onDragStart }}" onDragOver="{{ pg.onDragOver }}" onDrop="{{ pg.onDropOn }}" onDragEnd="{{ pg.onDragEnd }}" style="display:flex;flex-direction:column;gap:6px;opacity:{{ pg.op }};cursor:grab">
+                    <div onClick="{{ pg.onOpen }}" style="position:relative;aspect-ratio:2/3;border-radius:10px;overflow:hidden;background:repeating-linear-gradient(135deg,rgba(255,255,255,0.035) 0 8px,transparent 8px 16px),{{ pg.bg }};border:2px solid {{ pg.border }}">
+                      <div style="position:absolute;inset:0;background-image:{{ pg.bgImg }};background-size:cover;background-position:center"></div>
+                      <span style="position:absolute;left:6px;top:6px;padding:2px 7px;border-radius:5px;background:rgba(0,0,0,0.65);color:#fff;font-family:'IBM Plex Mono',monospace;font-size:11px">{{ pg.num }}</span>
+                      <sc-if value="{{ pg.isThumb }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;right:6px;top:6px;padding:2px 7px;border-radius:5px;background:var(--accent);color:#fff;font-size:10px;font-weight:800">THUMB</span></sc-if>
+                      <sc-if value="{{ pg.hasWarn }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;left:6px;right:6px;bottom:30px;padding:4px 6px;border-radius:5px;background:#F2A93B;color:#16171A;font-size:10px;font-weight:800;text-align:center">{{ pg.warn }}</span></sc-if>
+                      <sc-if value="{{ pg.uploading }}" hint-placeholder-val="{{ false }}"><div style="position:absolute;inset:0;background:rgba(0,0,0,0.45);display:grid;place-items:center;color:#fff;font-family:'IBM Plex Mono',monospace;font-size:12px">{{ pg.pct }}%</div><div style="position:absolute;left:0;right:0;bottom:0;height:4px;background:rgba(0,0,0,0.4)"><div style="height:100%;width:{{ pg.pct }}%;background:#3E7BE6"></div></div></sc-if>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;gap:6px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink-3)"><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ pg.name }}</span><span style="flex:none">{{ pg.size }}</span></div>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+            <sc-if value="{{ viewStrip }}" hint-placeholder-val="{{ false }}">
+              <div style="max-height:720px;overflow-y:auto;border-radius:12px;background:#0B0B0C;padding:16px 0;display:flex;flex-direction:column;align-items:center">
+                <sc-for list="{{ pages }}" as="pg" hint-placeholder-count="4">
+                  <div onClick="{{ pg.onOpen }}" style="width:min(100%,420px);aspect-ratio:2/3;position:relative;background:repeating-linear-gradient(135deg,rgba(255,255,255,0.035) 0 10px,transparent 10px 20px),{{ pg.bg }};cursor:pointer">
+                    <div style="position:absolute;inset:0;background-image:{{ pg.bgImg }};background-size:cover;background-position:center"></div>
+                    <span style="position:absolute;right:8px;top:8px;padding:2px 7px;border-radius:5px;background:rgba(0,0,0,0.65);color:#fff;font-family:'IBM Plex Mono',monospace;font-size:11px">{{ pg.num }} / {{ pageCount }}</span>
+                  </div>
+                </sc-for>
+                <div style="padding:18px;color:#A4A8B0;font-size:12px;text-align:center">{{ noteLine }}</div>
+              </div>
+            </sc-if>
+          </sc-if>
+        </div>
+
+        <div style="padding:18px;border-radius:14px;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;gap:12px">
+          <div style="display:flex;flex-direction:column;gap:2px"><div style="font-size:15px;font-weight:800">Monetisasi & akses</div></div>
+          <div style="border-top:1px solid var(--line)"><button onClick="{{ tEarly.onClick }}" style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border:0;background:transparent;color:var(--ink);font:inherit;text-align:left;cursor:pointer;width:100%"><span style="display:flex;flex-direction:column;gap:2px"><span style="font-size:13px;font-weight:700">Early access premium</span><span style="font-size:12px;color:var(--ink-3)">Pelanggan premium baca lebih dulu</span></span><span style="width:40px;height:24px;flex:none;border-radius:999px;background:{{ tEarly.track }};padding:3px;display:flex;justify-content:{{ tEarly.justify }}"><span style="width:18px;height:18px;border-radius:50%;background:#fff"></span></span></button></div>
+          <sc-if value="{{ earlyOn }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:6px"><div style="display:flex;justify-content:space-between;font-size:12px"><span style="font-weight:700;color:var(--ink-3)">Lebih awal</span><span style="font-family:'IBM Plex Mono',monospace;color:var(--ink-2)">{{ earlyDays }} hari</span></div><input type="range" min="1" max="7" step="1" value="{{ earlyDays }}" onChange="{{ onEarlyDays }}"></input></div>
+          </sc-if>
+          <div style="display:flex;flex-direction:column;gap:6px"><div style="font-size:12px;font-weight:700;color:var(--ink-3)">Iklan di chapter ini</div><div style="display:flex;background:var(--surface-2);border-radius:9px;padding:3px"><sc-for list="{{ adSeg }}" as="o" hint-placeholder-count="3"><button onClick="{{ o.onClick }}" style="flex:1;height:32px;border:0;border-radius:7px;background:{{ o.bg }};color:{{ o.fg }};font:inherit;font-size:12px;font-weight:700;cursor:pointer">{{ o.label }}</button></sc-for></div></div>
+          <sc-if value="{{ adCustom }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:6px"><div style="display:flex;justify-content:space-between;font-size:12px"><span style="font-weight:700;color:var(--ink-3)">Iklan tiap</span><span style="font-family:'IBM Plex Mono',monospace;color:var(--ink-2)">{{ adEvery }} gambar</span></div><input type="range" min="2" max="12" step="1" value="{{ adEvery }}" onChange="{{ onAdEvery }}"></input></div>
+          </sc-if>
+        </div>
+
+        <div style="padding:18px;border-radius:14px;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column">
+          <div style="display:flex;flex-direction:column;gap:2px"><div style="font-size:15px;font-weight:800">Riwayat upload</div></div>
+          <div style="overflow-x:auto;margin-top:10px"><div style="min-width:620px">
+            <sc-for list="{{ history }}" as="hi" hint-placeholder-count="5">
+              <div style="display:grid;grid-template-columns:40px minmax(0,1.6fr) 80px 110px 120px 80px;gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--line)">
+                <div style="aspect-ratio:3/4;border-radius:5px;background:{{ hi.bg }}"></div>
+                <div style="min-width:0"><div style="font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ hi.title }}</div><div style="font-size:12px;color:var(--ink-3)">{{ hi.by }}</div></div>
+                <span style="font-size:13px;font-weight:700">Ch {{ hi.ch }}</span>
+                <span style="justify-self:start;padding:3px 8px;border-radius:6px;background:{{ hi.stBg }};color:{{ hi.stFg }};font-size:11px;font-weight:800">{{ hi.st }}</span>
+                <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-3)">{{ hi.when }}</span>
+                <a href="nacp%20Reader.dc.html" style="font-size:12px;font-weight:700">{{ hi.action }}</a>
+              </div>
+            </sc-for>
+          </div></div>
+        </div>
+      </div>
+
+      <div style="padding:18px;border-radius:14px;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;gap:16px;position:sticky;top:20px">
+        <div style="font-size:15px;font-weight:800">Publikasi</div>
+        <div style="display:flex;background:var(--surface-2);border-radius:9px;padding:3px"><sc-for list="{{ pubSeg }}" as="o" hint-placeholder-count="3"><button onClick="{{ o.onClick }}" style="flex:1;height:32px;border:0;border-radius:7px;background:{{ o.bg }};color:{{ o.fg }};font:inherit;font-size:12px;font-weight:700;cursor:pointer">{{ o.label }}</button></sc-for></div>
+        <sc-if value="{{ isSched }}" hint-placeholder-val="{{ true }}">
+          <label style="display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:600;color:var(--ink-2)">Tayang pada<input type="datetime-local" value="2026-10-17T19:00" style="height:40px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:9px;padding:0 12px;font:inherit;font-size:14px;font-size:13px"></input><span style="font-size:11px;color:var(--ink-3)">Slot jadwal berikutnya: Jumat 17 Okt, 19.00 WIB</span></label>
+        </sc-if>
+        <div style="display:flex;flex-direction:column;border-top:1px solid var(--line)">
+          <div style="font-size:12px;font-weight:700;color:var(--ink-3);padding-top:12px">Kirim notifikasi</div>
+          <button onClick="{{ nPush.onClick }}" style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border:0;background:transparent;color:var(--ink);font:inherit;text-align:left;cursor:pointer;width:100%"><span style="display:flex;flex-direction:column;gap:2px"><span style="font-size:13px;font-weight:700">Push ke pembaca yang bookmark</span><span style="font-size:12px;color:var(--ink-3)">{{ bmCount }} pembaca</span></span><span style="width:40px;height:24px;flex:none;border-radius:999px;background:{{ nPush.track }};padding:3px;display:flex;justify-content:{{ nPush.justify }}"><span style="width:18px;height:18px;border-radius:50%;background:#fff"></span></span></button>
+          <button onClick="{{ nTg.onClick }}" style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border:0;background:transparent;color:var(--ink);font:inherit;text-align:left;cursor:pointer;width:100%"><span style="display:flex;flex-direction:column;gap:2px"><span style="font-size:13px;font-weight:700">Channel Telegram</span></span><span style="width:40px;height:24px;flex:none;border-radius:999px;background:{{ nTg.track }};padding:3px;display:flex;justify-content:{{ nTg.justify }}"><span style="width:18px;height:18px;border-radius:50%;background:#fff"></span></span></button>
+          <button onClick="{{ nDc.onClick }}" style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border:0;background:transparent;color:var(--ink);font:inherit;text-align:left;cursor:pointer;width:100%"><span style="display:flex;flex-direction:column;gap:2px"><span style="font-size:13px;font-weight:700">Server Discord</span></span><span style="width:40px;height:24px;flex:none;border-radius:999px;background:{{ nDc.track }};padding:3px;display:flex;justify-content:{{ nDc.justify }}"><span style="width:18px;height:18px;border-radius:50%;background:#fff"></span></span></button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--line);padding-top:12px">
+          <div style="font-size:12px;font-weight:700;color:var(--ink-3)">Cek sebelum publikasi</div>
+          <sc-for list="{{ checklist }}" as="ck" hint-placeholder-count="5">
+            <div style="display:flex;gap:10px;align-items:center;font-size:13px;color:{{ ck.fg }}"><span style="width:18px;height:18px;flex:none;border-radius:50%;background:{{ ck.bg }};color:#fff;display:grid;place-items:center;font-size:11px;font-weight:800">{{ ck.mark }}</span>{{ ck.label }}</div>
+          </sc-for>
+        </div>
+        <button onClick="{{ publish }}" style="height:46px;border:0;background:{{ pubBg }};color:#fff;border-radius:10px;font:inherit;font-size:14px;font-weight:800;cursor:pointer">{{ pubLabel }}</button>
+        <button onClick="{{ saveDraft }}" style="height:40px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:10px;font:inherit;font-size:13px;font-weight:700;cursor:pointer">Simpan draft</button>
+      </div>
+    </div>
+
+    <sc-if value="{{ pvOpen }}" hint-placeholder-val="{{ false }}">
+      <div onClick="{{ closePv }}" style="position:fixed;inset:0;z-index:70;background:rgba(0,0,0,0.85)"></div>
+      <div style="position:fixed;z-index:71;inset:24px;display:flex;gap:20px;align-items:center;justify-content:center;pointer-events:none">
+        <button onClick="{{ pvPrev }}" style="pointer-events:auto;width:44px;height:44px;border:0;border-radius:50%;background:rgba(255,255,255,0.14);color:#fff;font:inherit;font-size:20px;cursor:pointer">‹</button>
+        <div style="pointer-events:auto;height:100%;max-height:860px;aspect-ratio:2/3;position:relative;border-radius:8px;overflow:hidden;background:repeating-linear-gradient(135deg,rgba(255,255,255,0.035) 0 12px,transparent 12px 24px),{{ pv.bg }}">
+          <div style="position:absolute;inset:0;background-image:{{ pv.bgImg }};background-size:contain;background-repeat:no-repeat;background-position:center"></div>
+          <div style="position:absolute;left:0;right:0;top:0;padding:12px;display:flex;justify-content:space-between;align-items:center;background:linear-gradient(180deg,rgba(0,0,0,0.7),rgba(0,0,0,0));color:#fff;font-family:'IBM Plex Mono',monospace;font-size:12px"><span>{{ pv.num }} / {{ pageCount }} · {{ pv.name }}</span><button onClick="{{ closePv }}" style="width:30px;height:30px;border:0;border-radius:8px;background:rgba(255,255,255,0.16);color:#fff;font:inherit;cursor:pointer">×</button></div>
+          <div style="position:absolute;left:0;right:0;bottom:0;padding:12px;display:flex;gap:8px;justify-content:center;background:linear-gradient(0deg,rgba(0,0,0,0.75),rgba(0,0,0,0))">
+            <button onClick="{{ pvThumb }}" style="height:34px;padding:0 12px;border:0;border-radius:8px;background:#3E7BE6;color:#fff;font:inherit;font-size:12px;font-weight:700;cursor:pointer">Jadikan thumbnail</button>
+            <label style="height:34px;padding:0 12px;border-radius:8px;background:rgba(255,255,255,0.16);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;cursor:pointer">Ganti gambar<input type="file" accept="image/*" onChange="{{ pvReplace }}" style="display:none"></input></label>
+            <button onClick="{{ pvDelete }}" style="height:34px;padding:0 12px;border:0;border-radius:8px;background:#D9534F;color:#fff;font:inherit;font-size:12px;font-weight:700;cursor:pointer">Hapus</button>
+          </div>
+        </div>
+        <button onClick="{{ pvNext }}" style="pointer-events:auto;width:44px;height:44px;border:0;border-radius:50%;background:rgba(255,255,255,0.14);color:#fff;font:inherit;font-size:20px;cursor:pointer">›</button>
+      </div>
+    </sc-if>
+  </sc-if>
+
+  <sc-if value="{{ sSchedule }}" hint-placeholder-val="{{ false }}">
+    <div style="overflow-x:auto">
+      <div style="display:grid;grid-template-columns:repeat(7,minmax(150px,1fr));gap:10px;min-width:1080px">
+        <sc-for list="{{ week }}" as="day" hint-placeholder-count="7">
+          <div style="display:flex;flex-direction:column;gap:8px;padding:10px;border-radius:12px;background:{{ day.bg }};border:1px solid {{ day.border }};min-height:300px">
+            <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:13px;font-weight:800">{{ day.name }}</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-3)">{{ day.date }}</span></div>
+            <sc-for list="{{ day.items }}" as="it" hint-placeholder-count="2">
+              <div style="display:flex;gap:8px;padding:6px;border-radius:9px;background:var(--bg);border:1px solid var(--line)">
+                <div style="width:40px;flex:none;aspect-ratio:3/4;border-radius:5px;background:{{ it.bg }}"></div>
+                <div style="min-width:0;display:flex;flex-direction:column;gap:2px;justify-content:center">
+                  <span style="font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ it.title }}</span>
+                  <span style="font-size:11px;color:var(--ink-2)">Ch {{ it.ch }}</span>
+                  <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:{{ it.stColor }}">{{ it.time }} · {{ it.st }}</span>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+    <div style="font-size:12px;color:var(--ink-3)">Chapter terjadwal otomatis tampil di halaman Jadwal Update dan mengirim notifikasi ke pembaca yang mem-bookmark judulnya.</div>
+  </sc-if>
+
+  <sc-if value="{{ sUsers }}" hint-placeholder-val="{{ false }}">
+    <div style="border:1px solid var(--line);border-radius:14px;background:var(--surface);overflow-x:auto">
+      <div style="min-width:760px">
+        <div style="display:grid;grid-template-columns:minmax(220px,2fr) 150px 110px 110px 110px;gap:12px;padding:10px 16px;border-bottom:1px solid var(--line);font-size:11px;font-weight:700;color:var(--ink-3)"><span>Pengguna</span><span>Role</span><span>Langganan</span><span>Bergabung</span><span>Status</span></div>
+        <sc-for list="{{ users }}" as="u" hint-placeholder-count="8">
+          <div style="display:grid;grid-template-columns:minmax(220px,2fr) 150px 110px 110px 110px;gap:12px;padding:10px 16px;border-bottom:1px solid var(--line);align-items:center">
+            <div style="display:flex;align-items:center;gap:10px;min-width:0"><div style="width:34px;height:34px;flex:none;border-radius:50%;background:var(--surface-2);display:grid;place-items:center;font-size:12px;font-weight:800;color:var(--ink-2)">{{ u.initial }}</div><div style="min-width:0"><div style="font-size:14px;font-weight:700">{{ u.name }}</div><div style="font-size:12px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ u.email }}</div></div></div>
+            <select value="{{ u.role }}" onChange="{{ u.onRole }}" style="height:34px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;padding:0 8px;font:inherit;font-size:13px"><option value="Pembaca">Pembaca</option><option value="Uploader">Uploader</option><option value="Editor">Editor</option><option value="Admin">Admin</option></select>
+            <span style="font-size:12px;font-weight:700;color:{{ u.subColor }}">{{ u.sub }}</span>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--ink-3)">{{ u.joined }}</span>
+            <button onClick="{{ u.onBan }}" style="height:30px;border:1px solid var(--line);background:var(--bg);color:{{ u.banFg }};border-radius:8px;font:inherit;font-size:12px;font-weight:700;cursor:pointer">{{ u.banLabel }}</button>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ sComments }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;gap:6px">
+      <sc-for list="{{ cTabs }}" as="ct" hint-placeholder-count="2"><button onClick="{{ ct.onClick }}" style="height:34px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:{{ ct.bg }};color:{{ ct.fg }};font:inherit;font-size:12px;font-weight:700;cursor:pointer">{{ ct.label }}</button></sc-for>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <sc-for list="{{ comments }}" as="c" hint-placeholder-count="5">
+        <div style="display:flex;gap:14px;padding:14px;border-radius:12px;background:var(--surface);border:1px solid {{ c.border }}">
+          <div style="width:44px;flex:none;aspect-ratio:3/4;border-radius:6px;background:{{ c.bg }}"></div>
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:5px">
+            <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:baseline;font-size:12px;color:var(--ink-3)"><b style="font-size:13px;color:var(--ink)">{{ c.user }}</b><span>{{ c.where }}</span><span style="font-family:'IBM Plex Mono',monospace">{{ c.time }}</span><sc-if value="{{ c.flagged }}" hint-placeholder-val="{{ false }}"><span style="padding:2px 7px;border-radius:5px;background:#D9534F;color:#fff;font-weight:800;font-size:10px">{{ c.flagLabel }}</span></sc-if></div>
+            <div style="font-size:14px;line-height:1.55;color:var(--ink-2)">{{ c.text }}</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;flex:none">
+            <button onClick="{{ c.onOk }}" style="height:30px;padding:0 12px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;font:inherit;font-size:12px;font-weight:700;cursor:pointer">Setujui</button>
+            <button onClick="{{ c.onDel }}" style="height:30px;padding:0 12px;border:0;background:#D9534F;color:#fff;border-radius:8px;font:inherit;font-size:12px;font-weight:700;cursor:pointer">Hapus</button>
+          </div>
+        </div>
+      </sc-for>
+      <sc-if value="{{ noComments }}" hint-placeholder-val="{{ false }}"><div style="padding:30px;text-align:center;color:var(--ink-3);font-size:14px;border:1px dashed var(--line-2);border-radius:12px">Semua komentar sudah ditinjau.</div></sc-if>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ sPartners }}" hint-placeholder-val="{{ false }}">
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px">
+      <sc-for list="{{ partners }}" as="p" hint-placeholder-count="4">
+        <div style="padding:18px;border-radius:14px;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;gap:14px">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:48px;height:48px;border-radius:12px;border:1px dashed var(--line-2);display:grid;place-items:center;font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--ink-3)">logo</div>
+            <div><div style="font-size:16px;font-weight:800">{{ p.name }}</div><div style="font-size:12px;color:var(--ink-3)">{{ p.kind }}</div></div>
+          </div>
+          <div style="display:flex;gap:6px">
+            <sc-for list="{{ p.covers }}" as="cv" hint-placeholder-count="4"><div style="flex:1;aspect-ratio:3/4;border-radius:6px;background:{{ cv }}"></div></sc-for>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;font-size:12px;color:var(--ink-3)">
+            <div><div style="font-size:16px;font-weight:800;color:var(--ink)">{{ p.titles }}</div>judul</div>
+            <div><div style="font-size:16px;font-weight:800;color:var(--ink)">{{ p.share }}</div>bagi hasil</div>
+            <div><div style="font-size:16px;font-weight:800;color:var(--ink)">{{ p.uploaders }}</div>uploader</div>
+          </div>
+          <div style="font-size:12px;color:var(--ink-3)">Kontrak s.d. <b style="color:var(--ink-2)">{{ p.until }}</b> · kredit tampil di detail & reader</div>
+        </div>
+      </sc-for>
+      <button style="min-height:240px;border:1px dashed var(--line-2);border-radius:14px;background:transparent;color:var(--ink-2);font:inherit;font-size:14px;font-weight:700;cursor:pointer">+ Tambah partner</button>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ sReports }}" hint-placeholder-val="{{ false }}">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px;align-items:start">
+      <div style="padding:18px;border-radius:14px;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column">
+        <div style="font-size:16px;font-weight:800;margin-bottom:8px">Laporan gambar error</div>
+        <sc-for list="{{ reports }}" as="r" hint-placeholder-count="3">
+          <div style="display:flex;gap:12px;align-items:center;padding:12px 0;border-top:1px solid var(--line);opacity:{{ r.op }}">
+            <div style="width:40px;flex:none;aspect-ratio:2/3;border-radius:5px;background:{{ r.bg }}"></div>
+            <div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700">{{ r.title }} · Ch {{ r.ch }} · hal. {{ r.page }}</div><div style="font-size:12px;color:var(--ink-3)">{{ r.reason }} · {{ r.count }} laporan</div></div>
+            <button onClick="{{ r.onFix }}" style="height:30px;padding:0 12px;border:1px solid var(--line);background:var(--bg);color:{{ r.fixFg }};border-radius:8px;font:inherit;font-size:12px;font-weight:700;cursor:pointer">{{ r.fixLabel }}</button>
+          </div>
+        </sc-for>
+      </div>
+      <div style="padding:18px;border-radius:14px;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column">
+        <div style="font-size:16px;font-weight:800;margin-bottom:8px">Request komik</div>
+        <sc-for list="{{ requests }}" as="q" hint-placeholder-count="4">
+          <div style="display:flex;gap:12px;align-items:center;padding:12px 0;border-top:1px solid var(--line)">
+            <div style="width:52px;flex:none;text-align:center"><div style="font-size:18px;font-weight:800">{{ q.votes }}</div><div style="font-size:10px;color:var(--ink-3)">vote</div></div>
+            <div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:700">{{ q.title }}</div><div style="font-size:12px;color:var(--ink-3)">{{ q.type }} · {{ q.note }}</div></div>
+            <span style="font-size:11px;font-weight:700;color:{{ q.stColor }}">{{ q.status }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ sSite }}" hint-placeholder-val="{{ false }}">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px;align-items:start">
+      <div style="padding:18px;border-radius:14px;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;gap:16px">
+        <div style="font-size:16px;font-weight:800">Tampilan</div>
+        <div style="display:flex;gap:14px;align-items:center">
+          <div style="width:64px;height:64px;border-radius:14px;border:1px dashed var(--line-2);display:grid;place-items:center;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink-3)">logo</div>
+          <label style="flex:1;display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:600;color:var(--ink-2)">Nama situs<input value="{{ siteName }}" onChange="{{ onSiteName }}" style="height:40px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:9px;padding:0 12px;font:inherit;font-size:14px"></input></label>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="font-size:12px;font-weight:700;color:var(--ink-3)">Warna aksen</div>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+            <sc-for list="{{ accents }}" as="ac" hint-placeholder-count="4"><button onClick="{{ ac.onClick }}" style="width:36px;height:36px;border-radius:10px;border:3px solid {{ ac.ring }};background:{{ ac.c }};cursor:pointer"></button></sc-for>
+            <span style="margin-left:8px;display:flex;align-items:center;gap:8px;font-size:22px;font-weight:800;letter-spacing:-0.05em"><span style="width:11px;height:11px;border-radius:3px;background:{{ accent }}"></span>{{ siteName }}</span>
+            <span style="padding:9px 14px;border-radius:9px;background:{{ accent }};color:#fff;font-size:13px;font-weight:800">Bebas iklan</span>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div style="font-size:12px;font-weight:700;color:var(--ink-3)">Section beranda (urutan & tampil)</div>
+          <sc-for list="{{ homeSecs }}" as="hs" hint-placeholder-count="7">
+            <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:9px;background:var(--bg);border:1px solid var(--line);opacity:{{ hs.op }}">
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-3);width:18px">{{ hs.n }}</span>
+              <span style="flex:1;font-size:13px;font-weight:700">{{ hs.label }}</span>
+              <button onClick="{{ hs.onUp }}" style="width:26px;height:26px;border:1px solid var(--line);background:var(--surface);color:var(--ink-2);border-radius:6px;font:inherit;cursor:pointer">↑</button>
+              <button onClick="{{ hs.onDown }}" style="width:26px;height:26px;border:1px solid var(--line);background:var(--surface);color:var(--ink-2);border-radius:6px;font:inherit;cursor:pointer">↓</button>
+              <button onClick="{{ hs.onToggle }}" style="width:40px;height:24px;border:0;border-radius:999px;background:{{ hs.track }};padding:3px;display:flex;justify-content:{{ hs.justify }};cursor:pointer"><span style="width:18px;height:18px;border-radius:50%;background:#fff"></span></button>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      <div style="padding:18px;border-radius:14px;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;gap:14px">
+        <div style="font-size:16px;font-weight:800">SEO</div>
+        <label style="display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:600;color:var(--ink-2)">Pola judul halaman komik<input value="{{ seoTitle }}" onChange="{{ onSeoTitle }}" style="height:40px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:9px;padding:0 12px;font-family:'IBM Plex Mono',monospace;font-size:12px"></input></label>
+        <label style="display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:600;color:var(--ink-2)">Meta deskripsi beranda<textarea rows="3" style="border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:9px;padding:10px 12px;font:inherit;font-size:13px;resize:vertical">nacp adalah tempat baca komik berlisensi dalam Bahasa Indonesia: manga, manhwa, manhua, dan komik lokal.</textarea></label>
+        <label style="display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:600;color:var(--ink-2)">Pola URL<select style="height:40px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:9px;padding:0 10px;font-family:'IBM Plex Mono',monospace;font-size:12px"><option>/komik/{slug}/chapter-{n}</option><option>/{slug}/{n}</option><option>/baca/{slug}-chapter-{n}</option></select></label>
+        <div style="padding:12px;border-radius:10px;background:var(--bg);border:1px solid var(--line);display:flex;flex-direction:column;gap:3px">
+          <div style="font-size:11px;color:var(--ink-3)">Preview hasil pencarian</div>
+          <div style="font-size:16px;color:#7FA8F2;font-weight:600">{{ seoPreview }}</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#2FA67A">nacp.id/komik/langit-yang-retak</div>
+          <div style="font-size:12px;color:var(--ink-2)">Baca Langit yang Retak bahasa Indonesia, rilis resmi bersama Studio Kertas. Update tiap Jumat.</div>
+        </div>
+        <sc-for list="{{ seoToggles }}" as="st" hint-placeholder-count="3">
+          <button onClick="{{ st.onClick }}" style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0;border:0;background:transparent;color:var(--ink);font:inherit;text-align:left;cursor:pointer">
+            <span style="font-size:14px;font-weight:600">{{ st.label }}</span>
+            <span style="width:40px;height:24px;flex:none;border-radius:999px;background:{{ st.track }};padding:3px;display:flex;justify-content:{{ st.justify }}"><span style="width:18px;height:18px;border-radius:50%;background:#fff"></span></span>
+          </button>
+        </sc-for>
+        <button onClick="{{ saveSite }}" style="height:42px;border:0;background:var(--accent);color:#fff;border-radius:10px;font:inherit;font-size:14px;font-weight:800;cursor:pointer">Simpan pengaturan</button>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ sAds }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;justify-content:flex-end;margin-top:-8px">
+    <sc-if value="{{ ad.canEdit }}" hint-placeholder-val="{{ true }}">
+      <div style="display:flex;gap:8px">
+        <select style="height:38px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:9px;padding:0 10px;font:inherit;font-size:13px"><option>7 hari terakhir</option><option>Hari ini</option><option>30 hari</option></select>
+        <button onClick="{{ ad.newSlot }}" style="height:38px;padding:0 16px;border:0;background:var(--accent);color:#fff;border-radius:9px;font:inherit;font-size:13px;font-weight:700;cursor:pointer">+ Slot baru</button>
+      </div>
+    </sc-if>
+    </div>
+  <sc-if value="{{ ad.canView }}" hint-placeholder-val="{{ true }}">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px">
+      <sc-for list="{{ ad.kpis }}" as="k" hint-placeholder-count="4">
+        <div style="padding:16px;border-radius:12px;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;gap:6px">
+          <div style="font-size:12px;font-weight:600;color:var(--ink-3)">{{ k.label }}</div>
+          <div style="font-size:24px;font-weight:800;letter-spacing:-0.03em">{{ k.value }}</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:{{ k.deltaColor }}">{{ k.delta }}</div>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="display:flex;gap:4px;border-bottom:1px solid var(--line);overflow-x:auto;overflow-y:hidden">
+      <sc-for list="{{ ad.tabs }}" as="tb" hint-placeholder-count="4">
+        <button onClick="{{ tb.onClick }}" style="padding:10px 14px;border:0;box-shadow:inset 0 -2px 0 {{ tb.border }};background:transparent;color:{{ tb.fg }};font:inherit;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap">{{ tb.label }}</button>
+      </sc-for>
+    </div>
+
+    <sc-if value="{{ ad.tabSlots }}" hint-placeholder-val="{{ true }}">
+      <div style="border:1px solid var(--line);border-radius:14px;background:var(--surface);overflow-x:auto">
+        <div style="min-width:880px">
+          <div style="display:grid;grid-template-columns:52px minmax(200px,1.6fr) 1.2fr 110px 1.3fr 110px 90px 64px;gap:12px;padding:10px 16px;border-bottom:1px solid var(--line);font-size:11px;font-weight:700;color:var(--ink-3);letter-spacing:0.02em">
+            <span>Aktif</span><span>Slot</span><span>Penempatan</span><span>Ukuran</span><span>Sumber (rotasi)</span><span>Frekuensi</span><span style="text-align:right">Impresi</span><span style="text-align:right">CTR</span>
+          </div>
+          <sc-for list="{{ ad.slotRows }}" as="s" hint-placeholder-count="7">
+            <div onClick="{{ s.onOpen }}" style="display:grid;grid-template-columns:52px minmax(200px,1.6fr) 1.2fr 110px 1.3fr 110px 90px 64px;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line);align-items:center;cursor:pointer;background:{{ s.rowBg }}">
+              <button onClick="{{ s.onToggle }}" style="width:36px;height:22px;border:0;border-radius:999px;background:{{ s.track }};padding:3px;display:flex;justify-content:{{ s.justify }};cursor:pointer"><span style="width:16px;height:16px;border-radius:50%;background:#fff"></span></button>
+              <div style="min-width:0"><div style="font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ s.name }}</div><div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-3)">{{ s.id }}</div></div>
+              <div style="font-size:13px;color:var(--ink-2);line-height:1.4"><b style="color:var(--ink);font-weight:600">{{ s.page }}</b> · {{ s.pos }}</div>
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--ink-2)">{{ s.size }}</div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap">
+                <sc-for list="{{ s.netChips }}" as="nc" hint-placeholder-count="2"><span style="padding:3px 8px;border-radius:6px;background:var(--surface-2);font-size:12px;font-weight:600;color:var(--ink-2)">{{ nc.label }} <span style="font-family:'IBM Plex Mono',monospace;font-weight:400;color:var(--ink-3)">{{ nc.w }}%</span></span></sc-for>
+              </div>
+              <div style="font-size:12px;color:var(--ink-2)">{{ s.freqLabel }}</div>
+              <div style="text-align:right;font-family:'IBM Plex Mono',monospace;font-size:12px">{{ s.impLabel }}</div>
+              <div style="text-align:right;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--ink-2)">{{ s.ctrLabel }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--ink-3)">Klik baris untuk edit. Slot nonaktif tidak memuat script sama sekali.</div>
+    </sc-if>
+
+    <sc-if value="{{ ad.tabNets }}" hint-placeholder-val="{{ false }}">
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px">
+        <sc-for list="{{ ad.networks }}" as="n" hint-placeholder-count="4">
+          <div style="padding:18px;border-radius:14px;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;gap:12px">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><div style="font-size:16px;font-weight:700">{{ n.name }}</div><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:{{ n.statusColor }}">● {{ n.status }}</span></div>
+            <div style="font-size:12px;color:var(--ink-3)">{{ n.kind }}</div>
+            <label style="display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:600;color:var(--ink-3)">Publisher / Zone ID<input value="{{ n.pub }}" style="height:36px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;padding:0 10px;font-family:'IBM Plex Mono',monospace;font-size:12px"></input></label>
+            <label style="display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:600;color:var(--ink-3)">Script global (head)<textarea rows="3" style="border:1px solid var(--line);background:var(--bg);color:var(--ink-2);border-radius:8px;padding:8px 10px;font-family:'IBM Plex Mono',monospace;font-size:11px;resize:vertical">{{ n.script }}</textarea></label>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-3)">ads.txt: {{ n.adstxt }}</div>
+          </div>
+        </sc-for>
+        <button style="min-height:200px;border:1px dashed var(--line-2);border-radius:14px;background:transparent;color:var(--ink-2);font:inherit;font-size:14px;font-weight:600;cursor:pointer">+ Tambah jaringan (script apa aja)</button>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ ad.tabRules }}" hint-placeholder-val="{{ false }}">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px;align-items:start">
+        <div style="padding:6px 18px;border-radius:14px;background:var(--surface);border:1px solid var(--line)">
+          <sc-for list="{{ ad.ruleToggles }}" as="rt" hint-placeholder-count="5">
+            <button onClick="{{ rt.onClick }}" style="width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 0;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--ink);font:inherit;text-align:left;cursor:pointer">
+              <span style="display:flex;flex-direction:column;gap:2px"><span style="font-size:14px;font-weight:600">{{ rt.label }}</span><span style="font-size:12px;color:var(--ink-3)">{{ rt.sub }}</span></span>
+              <span style="width:40px;height:24px;flex:none;border-radius:999px;background:{{ rt.track }};padding:3px;display:flex;justify-content:{{ rt.justify }}"><span style="width:18px;height:18px;border-radius:50%;background:#fff"></span></span>
+            </button>
+          </sc-for>
+        </div>
+        <div style="padding:18px;border-radius:14px;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;gap:18px">
+          <sc-for list="{{ ad.ruleSliders }}" as="rs" hint-placeholder-count="4">
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <div style="display:flex;justify-content:space-between;font-size:13px"><span style="font-weight:600">{{ rs.label }}</span><span style="font-family:'IBM Plex Mono',monospace;color:var(--ink-2)">{{ rs.display }}</span></div>
+              <input type="range" min="{{ rs.min }}" max="{{ rs.max }}" step="1" value="{{ rs.value }}" onChange="{{ rs.onChange }}"></input>
+              <div style="font-size:12px;color:var(--ink-3)">{{ rs.sub }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ ad.tabStats }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:18px;border-radius:14px;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;gap:4px">
+        <div style="display:grid;grid-template-columns:minmax(140px,200px) 1fr 90px 64px 90px;gap:14px;padding-bottom:8px;font-size:11px;font-weight:700;color:var(--ink-3)"><span>Slot</span><span>Impresi (7 hari)</span><span style="text-align:right">Klik</span><span style="text-align:right">CTR</span><span style="text-align:right">Est.</span></div>
+        <sc-for list="{{ ad.statRows }}" as="r" hint-placeholder-count="7">
+          <div style="display:grid;grid-template-columns:minmax(140px,200px) 1fr 90px 64px 90px;gap:14px;align-items:center;padding:9px 0;border-top:1px solid var(--line)">
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.id }}</span>
+            <div style="display:flex;align-items:center;gap:10px"><div style="height:8px;border-radius:4px;background:var(--accent);width:{{ r.bar }}%"></div><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-3)">{{ r.impLabel }}</span></div>
+            <span style="text-align:right;font-family:'IBM Plex Mono',monospace;font-size:12px">{{ r.clicks }}</span>
+            <span style="text-align:right;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--ink-2)">{{ r.ctrLabel }}</span>
+            <span style="text-align:right;font-family:'IBM Plex Mono',monospace;font-size:12px">{{ r.rev }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+  </sc-if>
+  </sc-if>
+
+  <sc-if value="{{ noAccess }}" hint-placeholder-val="{{ false }}">
+    <div style="padding:40px;border:1px dashed var(--line-2);border-radius:14px;background:var(--surface);max-width:560px"><div style="font-size:16px;font-weight:700;margin-bottom:6px">Akses terbatas</div><div style="font-size:14px;line-height:1.6;color:var(--ink-2)">Role kamu tidak punya akses ke halaman ini.</div></div>
+  </sc-if>
+</main>
+
+<sc-if value="{{ titleDrawer }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ closeTitle }}" style="position:fixed;inset:0;z-index:60;background:rgba(0,0,0,0.4)"></div>
+  <aside style="position:fixed;z-index:61;top:0;right:0;bottom:0;width:{{ drawerW }};background:var(--bg);border-left:1px solid var(--line);overflow-y:auto;display:flex;flex-direction:column">
+    <div style="position:sticky;top:0;z-index:2;background:var(--bg);padding:16px 22px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between"><div style="font-size:16px;font-weight:800">{{ et.heading }}</div><button onClick="{{ closeTitle }}" style="border:0;background:var(--surface-2);color:var(--ink);width:32px;height:32px;border-radius:8px;font:inherit;font-size:16px;cursor:pointer">×</button></div>
+    <div style="padding:20px 22px 28px;display:flex;flex-direction:column;gap:16px">
+      <div style="display:grid;grid-template-columns:140px 1fr;gap:14px">
+        <div style="aspect-ratio:3/4;border-radius:10px;background:repeating-linear-gradient(135deg,rgba(255,255,255,0.035) 0 8px,transparent 8px 16px),{{ et.bg }};display:flex;align-items:flex-end;padding:8px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:rgba(255,255,255,0.7)">ganti cover</div>
+        <div style="border-radius:10px;border:1px dashed var(--line-2);display:grid;place-items:center;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-3);text-align:center;padding:8px">banner 1920×600<br>seret ke sini</div>
+      </div>
+      <label style="display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:600;color:var(--ink-2)">Judul<input value="{{ et.title }}" onChange="{{ onEtTitle }}" style="height:40px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:9px;padding:0 12px;font:inherit;font-size:14px"></input></label>
+      <label style="display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:600;color:var(--ink-2)">Slug<input value="{{ et.slug }}" style="height:40px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:9px;padding:0 12px;font-family:'IBM Plex Mono',monospace;font-size:12px"></input></label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <label style="display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:600;color:var(--ink-2)">Tipe<select value="{{ et.type }}" onChange="{{ onEtType }}" style="height:40px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:9px;padding:0 10px;font:inherit;font-size:13px"><option>Manga</option><option>Manhwa</option><option>Manhua</option><option>Lokal</option></select></label>
+        <label style="display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:600;color:var(--ink-2)">Status<select value="{{ et.status }}" onChange="{{ onEtStatus }}" style="height:40px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:9px;padding:0 10px;font:inherit;font-size:13px"><option>Berjalan</option><option>Tamat</option><option>Hiatus</option><option>Draft</option></select></label>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px"><div style="font-size:12px;font-weight:600;color:var(--ink-2)">Genre</div><div style="display:flex;gap:6px;flex-wrap:wrap"><sc-for list="{{ etGenres }}" as="g" hint-placeholder-count="8"><button onClick="{{ g.onClick }}" style="padding:6px 12px;border-radius:999px;border:1px solid {{ g.border }};background:{{ g.bg }};color:{{ g.fg }};font:inherit;font-size:12px;font-weight:600;cursor:pointer">{{ g.label }}</button></sc-for></div></div>
+      <label style="display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:600;color:var(--ink-2)">Sinopsis<textarea rows="4" style="border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:9px;padding:10px 12px;font:inherit;font-size:13px;resize:vertical;line-height:1.5">{{ et.syn }}</textarea></label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <label style="display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:600;color:var(--ink-2)">Partner<select value="{{ et.partner }}" onChange="{{ onEtPartner }}" style="height:40px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:9px;padding:0 10px;font:inherit;font-size:13px"><sc-for list="{{ partnerNames }}" as="pn" hint-placeholder-count="4"><option value="{{ pn }}">{{ pn }}</option></sc-for></select></label>
+        <label style="display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:600;color:var(--ink-2)">Jadwal rilis<select style="height:40px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:9px;padding:0 10px;font:inherit;font-size:13px"><option>Tiap Jumat 19.00</option><option>Tiap Senin 19.00</option><option>Tidak tetap</option></select></label>
+      </div>
+      <label style="display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:600;color:var(--ink-2)">Meta deskripsi (SEO)<textarea rows="2" style="border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:9px;padding:10px 12px;font:inherit;font-size:13px;resize:vertical">Baca {{ et.title }} bahasa Indonesia, rilis resmi di nacp.</textarea></label>
+    </div>
+    <div style="position:sticky;bottom:0;margin-top:auto;background:var(--bg);border-top:1px solid var(--line);padding:14px 22px;display:flex;gap:8px">
+      <button onClick="{{ saveTitle }}" style="flex:1;height:42px;border:0;background:var(--accent);color:#fff;border-radius:10px;font:inherit;font-size:14px;font-weight:800;cursor:pointer">Simpan</button>
+      <button onClick="{{ goUpload }}" style="height:42px;padding:0 16px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:10px;font:inherit;font-size:14px;font-weight:700;cursor:pointer">Upload chapter</button>
+    </div>
+  </aside>
+</sc-if>
+
+<sc-if value="{{ ad.drawerOpen }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ ad.closeDrawer }}" style="position:fixed;inset:0;z-index:60;background:rgba(0,0,0,0.35)"></div>
+  <aside style="position:fixed;z-index:61;top:0;right:0;bottom:0;width:{{ ad.drawerW }};background:var(--bg);border-left:1px solid var(--line);overflow-y:auto;display:flex;flex-direction:column">
+    <div style="position:sticky;top:0;z-index:2;background:var(--bg);padding:16px 22px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px">
+      <div style="min-width:0"><div style="font-size:16px;font-weight:700">{{ ad.dTitle }}</div><div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-3)">{{ ad.d.id }}</div></div>
+      <button onClick="{{ ad.closeDrawer }}" style="border:0;background:var(--surface-2);color:var(--ink);width:32px;height:32px;border-radius:8px;font:inherit;font-size:16px;cursor:pointer">×</button>
+    </div>
+    <div style="padding:20px 22px 28px;display:flex;flex-direction:column;gap:24px">
+
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div style="font-size:12px;font-weight:800;color:var(--ink-3);letter-spacing:0.04em">DASAR</div>
+        <label style="display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:600;color:var(--ink-2)">Nama slot<input value="{{ ad.d.name }}" onChange="{{ ad.onName }}" style="height:40px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:9px;padding:0 12px;font:inherit;font-size:14px"></input></label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <label style="display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:600;color:var(--ink-2)">Halaman<select value="{{ ad.d.page }}" onChange="{{ ad.onPage }}" style="height:40px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:9px;padding:0 10px;font:inherit;font-size:13px"><sc-for list="{{ ad.pageOpts }}" as="o" hint-placeholder-count="5"><option value="{{ o }}">{{ o }}</option></sc-for></select></label>
+          <label style="display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:600;color:var(--ink-2)">Ukuran<select value="{{ ad.d.size }}" onChange="{{ ad.onSize }}" style="height:40px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:9px;padding:0 10px;font:inherit;font-size:13px"><sc-for list="{{ ad.sizeOpts }}" as="o" hint-placeholder-count="6"><option value="{{ o }}">{{ o }}</option></sc-for></select></label>
+        </div>
+        <label style="display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:600;color:var(--ink-2)">Posisi<input value="{{ ad.d.pos }}" onChange="{{ ad.onPos }}" style="height:40px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:9px;padding:0 12px;font:inherit;font-size:14px"></input></label>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline"><div style="font-size:12px;font-weight:800;color:var(--ink-3);letter-spacing:0.04em">SUMBER &amp; ROTASI</div><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:{{ ad.weightColor }}">total {{ ad.weightTotal }}%</span></div>
+        <sc-for list="{{ ad.dNets }}" as="n" hint-placeholder-count="2">
+          <div style="padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+              <select value="{{ n.name }}" onChange="{{ n.onName }}" style="height:32px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:7px;padding:0 8px;font:inherit;font-size:13px;font-weight:600"><sc-for list="{{ ad.netOpts }}" as="o" hint-placeholder-count="5"><option value="{{ o }}">{{ o }}</option></sc-for></select>
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">{{ n.w }}%</span>
+              <button onClick="{{ n.onRemove }}" style="border:0;background:transparent;color:var(--ink-3);font:inherit;font-size:12px;cursor:pointer">hapus</button>
+            </div>
+            <input type="range" min="0" max="100" step="5" value="{{ n.w }}" onChange="{{ n.onW }}"></input>
+          </div>
+        </sc-for>
+        <button onClick="{{ ad.addNet }}" style="height:36px;border:1px dashed var(--line-2);background:transparent;color:var(--ink-2);border-radius:9px;font:inherit;font-size:13px;font-weight:600;cursor:pointer">+ Tambah sumber</button>
+        <label style="display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:600;color:var(--ink-2)">Kode / script slot<textarea rows="4" style="border:1px solid var(--line);background:var(--surface);color:var(--ink-2);border-radius:9px;padding:10px 12px;font-family:'IBM Plex Mono',monospace;font-size:11px;resize:vertical">{{ ad.d.code }}</textarea></label>
+        <sc-if value="{{ ad.hasDirect }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:8px;padding:12px;border-radius:10px;background:var(--surface);border:1px solid var(--line)">
+            <div style="font-size:12px;font-weight:700;color:var(--ink-2)">Iklan direct</div>
+            <div style="height:90px;border:1px dashed var(--line-2);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-3)">drop banner {{ ad.d.size }} · jpg/png/webp/gif</div>
+            <input placeholder="https://link-tujuan.com" style="height:36px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;padding:0 10px;font:inherit;font-size:13px"></input>
+          </div>
+        </sc-if>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="font-size:12px;font-weight:800;color:var(--ink-3);letter-spacing:0.04em">FREKUENSI</div>
+        <div style="display:flex;justify-content:space-between;font-size:13px"><span style="font-weight:600">{{ ad.freqText }}</span><span style="font-family:'IBM Plex Mono',monospace;color:var(--ink-2)">{{ ad.d.freq }}</span></div>
+        <input type="range" min="1" max="12" step="1" value="{{ ad.d.freq }}" onChange="{{ ad.onFreq }}"></input>
+        <div style="display:flex;justify-content:space-between;font-size:13px"><span style="font-weight:600">Maks per sesi</span><span style="font-family:'IBM Plex Mono',monospace;color:var(--ink-2)">{{ ad.d.cap }}</span></div>
+        <input type="range" min="1" max="30" step="1" value="{{ ad.d.cap }}" onChange="{{ ad.onCap }}"></input>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div style="font-size:12px;font-weight:800;color:var(--ink-3);letter-spacing:0.04em">TARGET</div>
+        <sc-for list="{{ ad.chipGroups }}" as="g" hint-placeholder-count="2">
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <div style="font-size:12px;font-weight:600;color:var(--ink-2)">{{ g.label }}</div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap">
+              <sc-for list="{{ g.items }}" as="c" hint-placeholder-count="4">
+                <button onClick="{{ c.onClick }}" style="padding:6px 12px;border-radius:999px;border:1px solid {{ c.border }};background:{{ c.bg }};color:{{ c.fg }};font:inherit;font-size:12px;font-weight:600;cursor:pointer">{{ c.label }}</button>
+              </sc-for>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="font-size:12px;font-weight:800;color:var(--ink-3);letter-spacing:0.04em">JADWAL</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <label style="display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:600;color:var(--ink-2)">Mulai<input type="date" value="2026-10-10" style="height:38px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:9px;padding:0 10px;font:inherit;font-size:13px"></input></label>
+          <label style="display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:600;color:var(--ink-2)">Selesai<input type="date" style="height:38px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:9px;padding:0 10px;font:inherit;font-size:13px"></input></label>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:2px">
+        <div style="font-size:12px;font-weight:800;color:var(--ink-3);letter-spacing:0.04em;margin-bottom:4px">PENGECUALIAN</div>
+        <button onClick="{{ ad.togglePremium }}" style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border:0;background:transparent;color:var(--ink);font:inherit;text-align:left;cursor:pointer">
+          <span style="display:flex;flex-direction:column;gap:2px"><span style="font-size:14px;font-weight:600">Sembunyikan untuk user premium</span><span style="font-size:12px;color:var(--ink-3)">Langganan bebas iklan Rp15rb/bln</span></span>
+          <span style="width:40px;height:24px;flex:none;border-radius:999px;background:{{ ad.premTrack }};padding:3px;display:flex;justify-content:{{ ad.premJustify }}"><span style="width:18px;height:18px;border-radius:50%;background:#fff"></span></span>
+        </button>
+        <div style="font-size:12px;font-weight:600;color:var(--ink-2);margin:8px 0 6px">Judul dikecualikan</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <sc-for list="{{ ad.exTitles }}" as="x" hint-placeholder-count="2">
+            <button onClick="{{ x.onRemove }}" style="padding:6px 10px;border-radius:7px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-size:12px;font-weight:600;cursor:pointer">{{ x.label }} <span style="color:var(--ink-3)">×</span></button>
+          </sc-for>
+          <button onClick="{{ ad.addEx }}" style="padding:6px 10px;border-radius:7px;border:1px dashed var(--line-2);background:transparent;color:var(--ink-2);font:inherit;font-size:12px;font-weight:600;cursor:pointer">+ judul</button>
+        </div>
+      </div>
+    </div>
+    <div style="position:sticky;bottom:0;margin-top:auto;background:var(--bg);border-top:1px solid var(--line);padding:14px 22px;display:flex;gap:8px">
+      <button onClick="{{ ad.saveSlot }}" style="flex:1;height:42px;border:0;background:var(--accent);color:#fff;border-radius:10px;font:inherit;font-size:14px;font-weight:700;cursor:pointer">Simpan</button>
+      <button onClick="{{ ad.closeDrawer }}" style="height:42px;padding:0 16px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:10px;font:inherit;font-size:14px;font-weight:600;cursor:pointer">Batal</button>
+    </div>
+  </aside>
+</sc-if>
+
+<sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:90;padding:10px 16px;border-radius:10px;background:#16171A;color:#fff;font-size:13px;font-weight:600">{{ toast }}</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const COMICS = [
+  ['langit','Langit yang Retak','Lokal','Fantasi',128,84200,250,'Studio Kertas'],['pedang','Pedang Ketujuh','Manhwa','Aksi',342,71900,20,'Hanul Media'],['kedai','Kedai Teh Musim Gugur','Manga','Slice of life',61,40300,60,'Kumo Press'],['raja','Raja Tanpa Mahkota','Manhua','Fantasi',915,66100,300,'Jade Lantern'],['sekolah','Sekolah Malam','Lokal','Horor',47,38800,160,'Studio Kertas'],['pemburu','Pemburu Level Nol','Manhwa','Aksi',210,59400,230,'Hanul Media'],['surat','Surat untuk Hana','Manga','Romansa',33,22700,350,'Kumo Press'],['gerbang','Gerbang Naga Giok','Manhua','Wuxia',588,31500,150,'Jade Lantern'],['ojek','Ojek Dimensi','Lokal','Komedi',72,27900,80,'Rumah Panel'],['mercusuar','Penjaga Mercusuar','Manga','Misteri',19,15200,210,'Kumo Press'],['istana','Istana Bayangan','Manhwa','Drama',156,33100,280,'Hanul Media'],['koki','Koki Sang Kaisar','Manhua','Komedi',301,29800,40,'Jade Lantern'],['finis','Garis Finis','Manga','Olahraga',240,24600,190,'Kumo Press'],['kota','Kota Tanpa Hujan','Lokal','Sci-fi',12,9800,200,'Rumah Panel'],['menara','Pewaris Menara','Manhwa','Fantasi',98,20400,270,'Hanul Media'],['lentera','Lentera Merah','Manhua','Romansa',77,17300,10,'Jade Lantern'],['arus','Arus Balik','Lokal','Drama',8,6100,220,'Rumah Panel'],['bintang','Bintang Ruang Ganti','Manga','Olahraga',5,4800,100,'Kumo Press']
+].map(([id,title,type,genre,ch,v,h,partner], i) => ({ id, title, type, genre, ch, v, h, partner, status: i === 2 ? 'Tamat' : i === 16 ? 'Draft' : 'Berjalan', genres: [genre] }));
+const GENRES = ['Aksi','Fantasi','Romansa','Horor','Komedi','Drama','Slice of life','Misteri','Wuxia','Olahraga','Sci-fi'];
+const PARTNERS = [ { name:'Studio Kertas', kind:'Studio komik lokal', share:'70/30', uploaders:3, until:'Des 2027' }, { name:'Hanul Media', kind:'Publisher manhwa', share:'60/40', uploaders:2, until:'Jun 2027' }, { name:'Kumo Press', kind:'Publisher manga', share:'55/45', uploaders:2, until:'Mar 2027' }, { name:'Jade Lantern', kind:'Publisher manhua', share:'60/40', uploaders:1, until:'Sep 2027' }, { name:'Rumah Panel', kind:'Kolektif kreator lokal', share:'75/25', uploaders:4, until:'Des 2026' } ];
+const USERS = [ ['Rina Aulia','rina@nacp.id','Admin','—','01/24'], ['Bagas Pratama','bagas@nacp.id','Editor','—','03/24'], ['Studio Kertas','upload@studiokertas.id','Uploader','—','05/24'], ['Hanul Media','id@hanulmedia.kr','Uploader','—','06/24'], ['dimas.r','dimas.r@gmail.com','Pembaca','Premium','02/25'], ['nadya','nadya.k@gmail.com','Pembaca','Premium','07/25'], ['kopi_hitam','kh@proton.me','Pembaca','Gratis','09/25'], ['spam_bot_88','x88@mail.ru','Pembaca','Gratis','10/26'] ];
+const COMMENTS = [ { user:'spam_bot_88', where:'Langit yang Retak · Ch 128', time:'12 mnt', text:'Baca gratis full di link bio gw, lebih lengkap!!', flags:14 }, { user:'anon_77', where:'Sekolah Malam · Ch 47', time:'1 jam', text:'Spoiler: yang ke-31 itu sebenarnya gurunya sendiri.', flags:6 }, { user:'dimas.r', where:'Langit yang Retak · Ch 128', time:'2 jam', text:'Panel waktu Raka megang serpihan itu gila sih, warnanya keluar banget.', flags:0 }, { user:'nadya', where:'Pedang Ketujuh · Ch 342', time:'3 jam', text:'Akhirnya pedang ketujuh ngomong juga.', flags:0 }, { user:'troll_id', where:'Raja Tanpa Mahkota · Ch 915', time:'5 jam', text:'Author-nya males, ceritanya muter-muter terus.', flags:3 }, { user:'kopi_hitam', where:'Kedai Teh · Ch 61', time:'8 jam', text:'Tamat dengan manis. Makasih Kumo Press.', flags:0 } ];
+const REPORTS = [ { id:'langit', ch:127, page:9, reason:'Gambar tidak muncul', count:12 }, { id:'raja', ch:914, page:22, reason:'Urutan halaman tertukar', count:4 }, { id:'pedang', ch:341, page:3, reason:'Resolusi pecah', count:2 } ];
+const REQUESTS = [ { title:'Penjahit dari Gang Sempit', type:'Lokal', note:'kreator sudah dihubungi', votes:842, status:'Negosiasi', c:'#F2A93B' }, { title:'Akademi Penyihir Gagal', type:'Manhwa', note:'cek pemegang lisensi', votes:611, status:'Ditinjau', c:'var(--ink-3)' }, { title:'Nelayan Bintang', type:'Manga', note:'publisher setuju', votes:430, status:'Disetujui', c:'#2FA67A' }, { title:'Tujuh Cawan Arak', type:'Manhua', note:'lisensi dipegang pihak lain', votes:388, status:'Ditolak', c:'#D9534F' } ];
+const UPLOADS = [ { id:'langit', ch:128, by:'Studio Kertas', st:'Tayang', when:'3 Okt 19.00' }, { id:'pedang', ch:343, by:'Hanul Media', st:'Terjadwal', when:'Sab 11 Okt 12.00' }, { id:'raja', ch:916, by:'Jade Lantern', st:'Diproses', when:'baru saja' }, { id:'sekolah', ch:48, by:'Studio Kertas', st:'Draft', when:'kemarin' }, { id:'pemburu', ch:211, by:'Hanul Media', st:'Gagal', when:'2 jam lalu' } ];
+const ST = { 'Tayang':['#2FA67A','#fff','Lihat'], 'Terjadwal':['#F2A93B','#16171A','Edit'], 'Diproses':['#3E7BE6','#fff','Pantau'], 'Draft':['var(--surface-2)','var(--ink-2)','Lanjutkan'], 'Gagal':['#D9534F','#fff','Ulangi'] };
+const SECS = ['Banner utama','Lanjut Baca','Rekomendasi buat kamu','Peringkat','Update Terbaru','Komik Baru','Jelajah Genre','Slider rekomendasi bawah'];
+const DAYS = ['Sen','Sel','Rab','Kam','Jum','Sab','Min'];
+const SLOTS = [
+  { id:'home_top', name:'Banner atas beranda', page:'Beranda', pos:'Di bawah Lanjut Baca', size:'728×90', nets:[['AdSense',60],['Adsterra',40]], freq:1, unit:'load', cap:10, on:true, imp:182400, ctr:0.41, dev:['Desktop','Mobile','Webapp'], geo:['Semua'], prem:true, ex:[] },
+  { id:'home_sidebar', name:'Sidebar rekomendasi', page:'Beranda', pos:'Kolom kanan sticky', size:'300×250', nets:[['AdSense',100]], freq:1, unit:'load', cap:10, on:true, imp:96100, ctr:0.28, dev:['Desktop'], geo:['Semua'], prem:true, ex:[] },
+  { id:'home_feed_native', name:'Native di Update Terbaru', page:'Beranda', pos:'Kartu ke-5', size:'Native', nets:[['Direct',50],['Adsterra',50]], freq:8, unit:'card', cap:6, on:true, imp:140200, ctr:0.92, dev:['Desktop','Mobile','Webapp'], geo:['ID','MY'], prem:true, ex:[] },
+  { id:'detail_top', name:'Banner halaman komik', page:'Detail', pos:'Di atas daftar chapter', size:'728×90', nets:[['AdSense',100]], freq:1, unit:'load', cap:10, on:true, imp:88300, ctr:0.33, dev:['Desktop','Mobile','Webapp'], geo:['Semua'], prem:true, ex:[] },
+  { id:'reader_inline', name:'Di antara halaman', page:'Reader', pos:'Antar gambar chapter', size:'728×90', nets:[['Monetag',70],['AdSense',30]], freq:4, unit:'img', cap:20, on:true, imp:612800, ctr:0.35, dev:['Desktop','Mobile','Webapp'], geo:['Semua'], prem:true, ex:['Kedai Teh Musim Gugur'] },
+  { id:'reader_end', name:'Akhir chapter', page:'Reader', pos:'Sebelum tombol next', size:'300×250', nets:[['AdSense',100]], freq:1, unit:'ch', cap:30, on:true, imp:201300, ctr:0.77, dev:['Desktop','Mobile','Webapp'], geo:['Semua'], prem:true, ex:[] },
+  { id:'mobile_sticky', name:'Sticky bawah mobile', page:'Semua', pos:'Bawah layar', size:'320×50', nets:[['Adsterra',100]], freq:1, unit:'load', cap:30, on:true, imp:398000, ctr:0.19, dev:['Mobile','Webapp'], geo:['Semua'], prem:true, ex:[] },
+  { id:'reader_interstitial', name:'Interstitial pindah chapter', page:'Reader', pos:'Layar penuh sebelum chapter baru', size:'Interstitial', nets:[['Monetag',100]], freq:2, unit:'ch', cap:5, on:true, imp:74100, ctr:1.12, dev:['Mobile','Webapp'], geo:['ID'], prem:true, ex:[] }
+];
+const UNIT = { load:'Tiap muat halaman', card:'Tiap N kartu', img:'Tiap N gambar', ch:'Tiap N chapter' };
+const UNIT_SHORT = { load:'tiap muat', card:'tiap {n} kartu', img:'tiap {n} gambar', ch:'tiap {n} chapter' };
+const NETWORKS = [
+  { name:'Google AdSense', kind:'Display & responsive', status:'Terhubung', pub:'ca-pub-0000000000000000', script:'<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-…"><\/script>', adstxt:'google.com, pub-…, DIRECT' },
+  { name:'Monetag', kind:'Display, interstitial, push, popunder', status:'Terhubung', pub:'zone 7·······', script:'<script src="//…/tag.min.js" data-zone="…"><\/script>', adstxt:'monetag.com, …, DIRECT' },
+  { name:'Adsterra', kind:'Banner, native, social bar', status:'Terhubung', pub:'key a1b2········', script:'<script src="//…/invoke.js"><\/script>', adstxt:'adsterra.com, …, DIRECT' },
+  { name:'Direct', kind:'Banner upload sendiri + link', status:'Aktif', pub:'—', script:'(dikelola per slot)', adstxt:'—' }
+];
+const NET_OPTS = ['AdSense','Monetag','Adsterra','Direct','Lainnya (script)'];
+const PAGE_OPTS = ['Beranda','Detail','Reader','Pencarian','Semua'];
+const SIZE_OPTS = ['728×90','320×100','300×250','300×600','320×50','Native','Interstitial'];
+const EX_POOL = ['Sekolah Malam','Surat untuk Hana','Kota Tanpa Hujan'];
+
+const NAV = [['dashboard','Dashboard'],['titles','Judul'],['upload','Upload Chapter'],['schedule','Jadwal Rilis'],['ads','Iklan'],['users','Pengguna'],['comments','Komentar'],['partners','Partner'],['reports','Laporan & Request'],['site','Tampilan & SEO']];
+const ACCESS = { Admin: NAV.map(n => n[0]), Editor: ['dashboard','titles','upload','schedule','ads','comments','reports'], Uploader: ['dashboard','titles','upload','schedule'] };
+const fmt = n => n >= 1e6 ? (n / 1e6).toFixed(1).replace('.', ',') + 'jt' : n >= 1000 ? (n / 1000).toFixed(1).replace('.', ',') + 'rb' : String(n);
+const col = h => `oklch(0.42 0.09 ${h})`;
+
+class Component extends DCLogic {
+  state = { theme: localStorage.getItem('nacp-theme') || 'dark', role: 'Admin', sec: 'dashboard', adTab: 'slots', slots: SLOTS, editIdx: null, d: null, rules: { premium:true, lazy:true, consent:true, popunder:false, push:false, maxPage:6, delay:3, popCap:1, pushDelay:30 }, w: 1280, toast: '',
+    comics: COMICS, tq: '', tf: 'Semua', edit: null,
+    upTitle: 'langit', upCh: '129', upName: '', upVol: '', upNote: '', pages: [], upFormat: 'webp', pubMode: 'schedule', upQ: 85, dragging: false, batch: false, src: 'img', view: 'grid', pv: null, thumb: 0, dragIdx: null, splitH: 2000, maxW: '1600', o: { split: true, trim: true, wm: false, dup: true, extra: false, sens: false, early: true, push: true, tg: true, dc: false }, earlyDays: 3, adMode: 'default', adEvery: 4, batchList: [], uploads: UPLOADS,
+    users: USERS.map(([name, email, role, sub, joined]) => ({ name, email, role, sub, joined, banned: false })),
+    comments: COMMENTS.map((c, i) => ({ ...c, i, done: false })), cTab: 'flagged', reports: REPORTS.map(r => ({ ...r, fixed: false })),
+    siteName: 'nacp', accent: '#3E7BE6', secs: SECS.map(l => ({ l, on: true })), seoTitle: 'Baca {judul} Bahasa Indonesia · {situs}', seo: { sitemap: true, index: true, schema: true } };
+  componentDidMount() {
+    const sp = new URLSearchParams(location.search).get('s'); if (sp && NAV.some(n => n[0] === sp)) this.setState({ sec: sp });
+    this.onR = () => this.setState({ w: innerWidth }); this.onR(); addEventListener('resize', this.onR);
+    this.iv = setInterval(() => { const s = this.state; if (s.pages.some(p => p.pct < 100)) this.setState(st => ({ pages: st.pages.map(p => p.pct < 100 ? { ...p, pct: Math.min(100, p.pct + 7 + Math.random() * 12) } : p) })); if (s.batchList.some(b => b.pct < 100)) this.setState(st => ({ batchList: st.batchList.map(b => b.pct < 100 ? { ...b, pct: Math.min(100, b.pct + 3 + Math.random() * 5) } : b) })); }, 120);
+  }
+  componentWillUnmount() { removeEventListener('resize', this.onR); clearInterval(this.iv); }
+  flash(m) { this.setState({ toast: m }); clearTimeout(this.tt); this.tt = setTimeout(() => this.setState({ toast: '' }), 2200); }
+  go(sec) { this.setState({ sec, edit: null, d: null }); history.replaceState(null, '', '?s=' + sec); }
+  addFiles(files) {
+    const arr = Array.from(files || []).filter(f => f.type.startsWith('image/'));
+    if (!arr.length) return;
+    const base = this.state.pages.length;
+    const np = arr.map((f, i) => ({ key: 'f' + Date.now() + i, name: f.name, kb: Math.round(f.size / 1024), url: URL.createObjectURL(f), h: (base + i) * 23 % 360, pct: 0, sig: f.name + f.size, lowres: 0 }));
+    this.setState(s => ({ pages: [...s.pages, ...np] }));
+  }
+  move(i, d) { this.setState(s => { const p = s.pages.slice(); const j = i + d; if (j < 0 || j >= p.length) return null; [p[i], p[j]] = [p[j], p[i]]; return { pages: p }; }); }
+
+  open(i) { this.setState({ editIdx: i, d: JSON.parse(JSON.stringify(this.state.slots[i])) }); }
+  ed(patch) { this.setState(s => ({ d: { ...s.d, ...patch } })); }
+  rule(patch) { this.setState(s => ({ rules: { ...s.rules, ...patch } })); }
+  adVals() {
+    const s = this.state, wide = s.w >= 900, canEdit = s.role === 'Admin', canView = s.role !== 'Uploader';
+    const d = s.d, r = s.rules;
+    const totalImp = s.slots.reduce((a, b) => a + (b.on ? b.imp : 0), 0);
+    const totalClicks = s.slots.reduce((a, b) => a + (b.on ? Math.round(b.imp * b.ctr / 100) : 0), 0);
+    const maxImp = Math.max(...s.slots.map(x => x.imp), 1);
+    const toggleChip = (key, val) => { const arr = d[key].includes(val) ? d[key].filter(x => x !== val) : [...d[key], val]; this.ed({ [key]: arr }); };
+    const chips = (key, opts) => opts.map(o => { const on = d && d[key].includes(o); return { label: o, bg: on ? 'var(--accent-soft)' : 'var(--surface)', border: on ? 'var(--accent)' : 'var(--line)', fg: on ? 'var(--accent-text)' : 'var(--ink-2)', onClick: () => toggleChip(key, o) }; });
+    const rt = (k, label, sub) => ({ label, sub, track: r[k] ? '#3E7BE6' : 'var(--line-2)', justify: r[k] ? 'flex-end' : 'flex-start', onClick: () => canEdit && this.rule({ [k]: !r[k] }) });
+    const rs = (k, label, min, max, f, sub) => ({ label, min, max, value: r[k], display: f(r[k]), sub, onChange: e => canEdit && this.rule({ [k]: +e.target.value }) });
+    const weightTotal = d ? d.nets.reduce((a, b) => a + b[1], 0) : 0;
+    const setNet = (i, patch) => this.ed({ nets: d.nets.map((n, j) => j === i ? [patch.name ?? n[0], patch.w ?? n[1]] : n) });
+    return {
+      theme: s.theme, wide, shellCols: wide ? '232px minmax(0,1fr)' : 'minmax(0,1fr)', pad: wide ? 32 : 16,
+      roles: ['Admin','Editor','Uploader'].map(x => ({ label: x, bg: s.role === x ? 'var(--surface)' : 'transparent', fg: s.role === x ? 'var(--ink)' : 'var(--ink-3)', onClick: () => this.setState({ role: x }) })),
+      themeLabel: s.theme === 'light' ? 'Mode gelap' : 'Mode terang',
+      toggleTheme: () => { const th = s.theme === 'light' ? 'dark' : 'light'; localStorage.setItem('nacp-theme', th); this.setState({ theme: th }); },
+      canEdit, canView, noAccess: !canView,
+      newSlot: () => { const ns = { id:'slot_baru_' + (s.slots.length + 1), name:'Slot baru', page:'Beranda', pos:'', size:'300×250', nets:[['AdSense',100]], freq:1, unit:'load', cap:10, on:false, imp:0, ctr:0, dev:['Desktop','Mobile'], geo:['Semua'], prem:true, ex:[] }; this.setState({ slots: [...s.slots, ns] }, () => this.open(this.state.slots.length - 1)); },
+      kpis: [ { label:'Impresi · 7 hari', value: fmt(totalImp), delta:'+8,4% vs minggu lalu', deltaColor:'#2FA67A' }, { label:'Klik', value: fmt(totalClicks), delta:'+3,1%', deltaColor:'#2FA67A' }, { label:'CTR rata-rata', value: (totalClicks / Math.max(totalImp, 1) * 100).toFixed(2).replace('.', ',') + '%', delta:'−0,02 poin', deltaColor:'#D9534F' }, { label:'Est. pendapatan', value:'Rp ' + fmt(Math.round(totalImp * 9.5)), delta:'eCPM rata-rata Rp9.500', deltaColor:'var(--ink-3)' } ],
+      tabs: [['slots','Slot iklan'],['nets','Jaringan'],['rules','Aturan global'],['stats','Statistik']].map(([k, l]) => ({ label: l, fg: s.adTab === k ? 'var(--ink)' : 'var(--ink-3)', border: s.adTab === k ? 'var(--accent)' : 'transparent', onClick: () => this.setState({ adTab: k }) })),
+      tabSlots: s.adTab === 'slots', tabNets: s.adTab === 'nets', tabRules: s.adTab === 'rules', tabStats: s.adTab === 'stats',
+      slotRows: s.slots.map((x, i) => ({ ...x, rowBg: s.editIdx === i && d ? 'var(--accent-soft)' : 'transparent', track: x.on ? '#3E7BE6' : 'var(--line-2)', justify: x.on ? 'flex-end' : 'flex-start',
+        netChips: x.nets.map(([l, w]) => ({ label: l, w })), freqLabel: UNIT_SHORT[x.unit].replace('{n}', x.freq), impLabel: x.on ? fmt(x.imp) : '—', ctrLabel: x.on ? x.ctr.toFixed(2).replace('.', ',') + '%' : '—',
+        onOpen: () => canEdit ? this.open(i) : this.flash('Hanya Admin yang bisa edit slot'),
+        onToggle: e => { e.stopPropagation(); if (!canEdit) return; this.setState(st => ({ slots: st.slots.map((y, j) => j === i ? { ...y, on: !y.on } : y) })); } })),
+      networks: NETWORKS.map(n => ({ ...n, statusColor: '#2FA67A' })),
+      ruleToggles: [ rt('premium','Bebas iklan untuk premium','Semua slot disembunyikan untuk pelanggan Rp15rb/bln'), rt('lazy','Lazy-load iklan','Slot baru dimuat saat mendekati layar, halaman komik tetap cepat'), rt('consent','Banner persetujuan cookie','Wajib untuk iklan personal'), rt('popunder','Izinkan popunder','Script Monetag/Adsterra, tanpa slot visual'), rt('push','Izinkan push notification ads','Ditawarkan setelah N detik') ],
+      ruleSliders: [ rs('maxPage','Maks slot per halaman',1,12,v => v,'Batas atas semua slot yang tampil di satu halaman'), rs('delay','Jeda interstitial',0,10,v => v + ' dtk','Waktu sebelum tombol lewati aktif'), rs('popCap','Popunder per sesi',0,5,v => v + '×','Hanya jika popunder aktif'), rs('pushDelay','Tawarkan push setelah',5,120,v => v + ' dtk','Hanya jika push aktif') ],
+      statRows: s.slots.map(x => ({ id: x.id, bar: Math.round(x.imp / maxImp * 100), impLabel: fmt(x.imp), clicks: fmt(Math.round(x.imp * x.ctr / 100)), ctrLabel: x.ctr.toFixed(2).replace('.', ',') + '%', rev: 'Rp ' + fmt(Math.round(x.imp * 9.5)) })),
+      drawerOpen: !!d, closeDrawer: () => this.setState({ d: null, editIdx: null }), drawerW: wide ? '460px' : '100%',
+      dTitle: d ? 'Edit slot · ' + d.name : '', d: d || { nets: [], dev: [], geo: [], ex: [] },
+      onName: e => this.ed({ name: e.target.value }), onPage: e => this.ed({ page: e.target.value }), onSize: e => this.ed({ size: e.target.value }), onPos: e => this.ed({ pos: e.target.value }),
+      pageOpts: PAGE_OPTS, sizeOpts: SIZE_OPTS, netOpts: NET_OPTS,
+      weightTotal, weightColor: weightTotal === 100 ? 'var(--ink-3)' : '#D9534F',
+      dNets: d ? d.nets.map(([name, w], i) => ({ name, w, onName: e => setNet(i, { name: e.target.value }), onW: e => setNet(i, { w: +e.target.value }), onRemove: () => this.ed({ nets: d.nets.filter((_, j) => j !== i) }) })) : [],
+      addNet: () => this.ed({ nets: [...d.nets, ['Adsterra', 0]] }),
+      hasDirect: !!d && d.nets.some(n => n[0] === 'Direct'),
+      freqText: d ? UNIT[d.unit] : '', onFreq: e => this.ed({ freq: +e.target.value }), onCap: e => this.ed({ cap: +e.target.value }),
+      chipGroups: d ? [ { label:'Device', items: chips('dev', ['Desktop','Mobile','Webapp']) }, { label:'Negara', items: chips('geo', ['Semua','ID','MY','SG','PH']) } ] : [],
+      premTrack: d && d.prem ? '#3E7BE6' : 'var(--line-2)', premJustify: d && d.prem ? 'flex-end' : 'flex-start', togglePremium: () => this.ed({ prem: !d.prem }),
+      exTitles: d ? d.ex.map(x => ({ label: x, onRemove: () => this.ed({ ex: d.ex.filter(y => y !== x) }) })) : [],
+      addEx: () => { const nx = EX_POOL.find(x => !d.ex.includes(x)); if (nx) this.ed({ ex: [...d.ex, nx] }); },
+      saveSlot: () => { if (weightTotal !== 100) { this.flash('Total rotasi harus 100%'); return; } this.setState(st => ({ slots: st.slots.map((y, j) => j === st.editIdx ? st.d : y), d: null, editIdx: null })); this.flash('Slot disimpan'); },
+      toast: s.toast
+    };
+  }
+  uploadVals(wide, comic) {
+    const s = this.state, o = s.o, up = comic(s.upTitle);
+    const T = k => ({ track: o[k] ? '#3E7BE6' : 'var(--line-2)', justify: o[k] ? 'flex-end' : 'flex-start', onClick: () => this.setState(st => ({ o: { ...st.o, [k]: !st.o[k] } })) });
+    const seg = (cur, set, opts) => opts.map(([v, l]) => ({ label: l, bg: cur === v ? 'var(--bg)' : 'transparent', fg: cur === v ? 'var(--ink)' : 'var(--ink-3)', onClick: () => set(v) }));
+    const pages = s.pages;
+    const done = pages.filter(p => p.pct >= 100).length;
+    const names = {};
+    const warnOf = p => { if (!o.dup) return ''; if (p.lowres) return 'Resolusi rendah · ' + p.lowres + 'px'; if (names[p.sig] > 1) return 'Kemungkinan duplikat'; if (p.kb > 1800) return 'File besar · ' + (p.kb / 1024).toFixed(1) + ' MB'; return ''; };
+    pages.forEach(p => { names[p.sig] = (names[p.sig] || 0) + 1; });
+    const warns = pages.filter(p => warnOf(p)).length;
+    const totalKb = pages.reduce((a, p) => a + p.kb, 0);
+    const ratio = (s.upFormat === 'avif' ? 0.28 : 0.38) * (s.upQ / 85);
+    const n = +s.upCh;
+    const taken = !isNaN(n) && n <= up.ch;
+    const chCheck = !s.upCh || isNaN(n) ? { label: 'Isi nomor chapter', color: '#D9534F', border: '#D9534F' } : taken ? { label: 'Ch ' + n + ' sudah ada. Pakai ' + (up.ch + 1) + '?', color: '#D9534F', border: '#D9534F' } : n > up.ch + 1 ? { label: 'Lompat dari Ch ' + up.ch, color: '#F2A93B', border: 'var(--line)' } : { label: 'Nomor tersedia', color: '#2FA67A', border: 'var(--line)' };
+    const okNum = !!s.upCh && !isNaN(n) && !taken;
+    const allDone = pages.length > 0 && done === pages.length;
+    const batchOk = s.batch && s.batchList.length > 0 && s.batchList.every(b => b.pct >= 100);
+    const checklist = (s.batch ? [ ['File chapter ditambahkan', s.batchList.length > 0], ['Semua file selesai diproses', batchOk], ['Kredit partner: ' + up.partner, true] ] : [ ['Nomor chapter valid', okNum], ['Semua gambar terunggah', allDone], ['Tidak ada peringatan gambar', pages.length > 0 && warns === 0], ['Thumbnail chapter dipilih', pages.length > 0], ['Kredit partner: ' + up.partner, true] ]).map(([label, ok]) => ({ label, mark: ok ? '✓' : '!', bg: ok ? '#2FA67A' : 'var(--line-2)', fg: ok ? 'var(--ink)' : 'var(--ink-3)' }));
+    const ready = s.batch ? batchOk : okNum && allDone;
+    const pvP = s.pv != null && pages[s.pv] ? pages[s.pv] : null;
+    const pageV = (p, i) => ({ ...p, num: i + 1, bgImg: p.url ? 'url("' + p.url + '")' : 'none', bg: 'oklch(0.42 0.09 ' + p.h + ')', uploading: p.pct < 100, pct: Math.round(p.pct), size: p.kb >= 1024 ? (p.kb / 1024).toFixed(1) + ' MB' : p.kb + ' KB', warn: warnOf(p), hasWarn: !!warnOf(p) && p.pct >= 100, isThumb: i === s.thumb, border: s.dragIdx === i ? 'var(--accent)' : warnOf(p) && p.pct >= 100 ? '#F2A93B' : 'transparent', op: s.dragIdx === i ? 0.4 : 1,
+      onOpen: () => this.setState({ pv: i }), onDragStart: e => { e.dataTransfer.effectAllowed = 'move'; this.setState({ dragIdx: i }); }, onDragOver: e => { e.preventDefault(); e.stopPropagation(); },
+      onDropOn: e => { e.preventDefault(); e.stopPropagation(); const from = this.state.dragIdx; if (from == null || from === i) return this.setState({ dragIdx: null }); this.setState(st => { const a = st.pages.slice(); const [m] = a.splice(from, 1); a.splice(i, 0, m); return { pages: a, dragIdx: null }; }); }, onDragEnd: () => this.setState({ dragIdx: null }) });
+    const srcCopy = { img: ['Seret gambar chapter ke sini', 'JPG, PNG, WEBP · bisa banyak sekaligus · maks 20 MB per file', 'Pilih gambar', 'image/*'], zip: ['Seret file ZIP / CBZ ke sini', 'Satu arsip per chapter, isi diurutkan otomatis', 'Pilih ZIP/CBZ', '.zip,.cbz'], folder: ['Seret folder chapter ke sini', 'Semua gambar di dalam folder diambil berurutan', 'Pilih folder', 'image/*'] }[s.src];
+    const stamp = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+    return {
+      upCols: s.w >= 1240 ? 'minmax(0,1fr) 320px' : 'minmax(0,1fr)',
+      upC: { bg: 'oklch(0.42 0.09 ' + up.h + ')', type: up.type === 'Lokal' ? 'Lokal' : up.type, lastCh: 'Ch ' + up.ch, lastDate: '3 Okt 2026', sched: up.status === 'Berjalan' ? 'Tiap Jumat 19.00' : up.status, partner: up.partner },
+      titleOpts: s.comics.filter(c => s.role !== 'Uploader' || c.partner === 'Studio Kertas'), upTitle: s.upTitle,
+      onUpTitle: e => { const c = comic(e.target.value); this.setState({ upTitle: c.id, upCh: String(c.ch + 1) }); },
+      batchSeg: seg(s.batch ? 'b' : 's', v => this.setState({ batch: v === 'b', src: v === 'b' ? 'zip' : 'img' }), [['s', 'Satu chapter'], ['b', 'Batch (banyak chapter)']]),
+      isSingle: !s.batch, isBatch: s.batch,
+      upCh: s.upCh, onUpCh: e => this.setState({ upCh: e.target.value }), chCheck, upVol: s.upVol, onUpVol: e => this.setState({ upVol: e.target.value }),
+      upName: s.upName, onUpName: e => this.setState({ upName: e.target.value }), upNote: s.upNote, onUpNote: e => this.setState({ upNote: e.target.value }),
+      tExtra: T('extra'), tSens: T('sens'),
+      batchList: s.batchList.map(b => ({ ...b, pct: Math.round(b.pct), stColor: b.pct >= 100 ? '#2FA67A' : 'var(--ink-3)' })),
+      addBatch: () => this.setState(st => { const start = up.ch + 1 + st.batchList.length; const add = [0, 1, 2].map(k => ({ n: start + k, file: up.title.toLowerCase().replace(/[^a-z0-9]+/g, '_') + '_ch' + (start + k) + '.cbz', pages: 14 + ((start + k) * 3) % 9, pct: 0, when: ['Jum 17 Okt', 'Jum 24 Okt', 'Jum 31 Okt', 'Jum 7 Nov', 'Jum 14 Nov', 'Jum 21 Nov'][(st.batchList.length + k) % 6] })); return { batchList: [...st.batchList, ...add] }; }),
+      srcSeg: seg(s.src, v => this.setState({ src: v }), [['img', 'Gambar'], ['zip', 'ZIP / CBZ'], ['folder', 'Folder']]),
+      dropTitle: srcCopy[0], dropSub: srcCopy[1], pickLabel: srcCopy[2], accept: srcCopy[3],
+      dropBorder: s.dragging ? 'var(--accent)' : 'var(--line-2)', dropBg: s.dragging ? 'var(--accent-soft)' : 'var(--bg)',
+      onDragOver: e => { e.preventDefault(); if (!s.dragging) this.setState({ dragging: true }); }, onDragLeave: () => this.setState({ dragging: false }),
+      onDrop: e => { e.preventDefault(); this.setState({ dragging: false }); if (s.batch) return this.flash('Mode batch: gunakan ZIP contoh'); this.addFiles(e.dataTransfer.files); },
+      onFiles: e => { if (s.batch) { this.flash('ZIP diterima, sedang diekstrak'); e.target.value = ''; return; } this.addFiles(e.target.files); e.target.value = ''; },
+      addDemo: () => this.setState(st => ({ batch: false, pages: [...st.pages, ...Array.from({ length: 14 }, (_, i) => { const idx = st.pages.length + i; return { key: 'd' + Date.now() + i, name: String(idx + 1).padStart(3, '0') + '.jpg', kb: i === 6 ? 2300 : 380 + (i * 37) % 260, url: '', h: (up.h + i * 9) % 360, pct: 0, sig: (i === 11 ? 'sig10' : 'sig' + i) + '_' + st.pages.length, lowres: i === 3 ? 640 : 0 }; })] })),
+      oSplit: T('split'), oTrim: T('trim'), oWm: T('wm'), oDup: T('dup'), oSplitOn: o.split,
+      splitH: s.splitH, onSplitH: e => this.setState({ splitH: +e.target.value }), upQ: s.upQ, onUpQ: e => this.setState({ upQ: +e.target.value }),
+      maxWOpts: [['800','800px'],['1200','1200px'],['1600','1600px (HD)'],['2000','2000px']].map(([v, l]) => ({ v, l })), maxW: s.maxW, onMaxW: e => this.setState({ maxW: e.target.value }),
+      fmtSeg: seg(s.upFormat, v => this.setState({ upFormat: v }), [['webp', 'WebP'], ['avif', 'AVIF']]),
+      hasPages: pages.length > 0, pageCount: pages.length, doneCount: done,
+      sizeLine: (totalKb / 1024).toFixed(1).replace('.', ',') + ' MB → ±' + (totalKb * ratio / 1024).toFixed(1).replace('.', ',') + ' MB setelah kompresi',
+      warnLine: warns ? warns + ' peringatan' : 'Tanpa peringatan', warnColor: warns ? '#F2A93B' : '#2FA67A',
+      viewSeg: seg(s.view, v => this.setState({ view: v }), [['grid', 'Grid'], ['strip', 'Preview baca']]), viewGrid: s.view === 'grid', viewStrip: s.view === 'strip',
+      pages: pages.map(pageV), noteLine: s.upNote || ('Akhir Chapter ' + s.upCh + ' · ' + up.partner),
+      sortPages: () => this.setState(st => ({ pages: st.pages.slice().sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true })) })), clearPages: () => this.setState({ pages: [], thumb: 0 }),
+      tEarly: T('early'), earlyOn: o.early, earlyDays: s.earlyDays, onEarlyDays: e => this.setState({ earlyDays: +e.target.value }),
+      adSeg: seg(s.adMode, v => this.setState({ adMode: v }), [['default', 'Ikut default'], ['custom', 'Custom'], ['off', 'Matikan']]), adCustom: s.adMode === 'custom', adEvery: s.adEvery, onAdEvery: e => this.setState({ adEvery: +e.target.value }),
+      history: s.uploads.map(u => { const c = comic(u.id); const st = ST[u.st]; return { ...u, title: c.title, bg: 'oklch(0.42 0.09 ' + c.h + ')', stBg: st[0], stFg: st[1], action: st[2] }; }),
+      pubSeg: seg(s.pubMode, v => this.setState({ pubMode: v }), [['draft', 'Draft'], ['now', 'Sekarang'], ['schedule', 'Jadwalkan']]), isSched: s.pubMode === 'schedule',
+      nPush: T('push'), nTg: T('tg'), nDc: T('dc'), bmCount: Math.round(up.v * 0.42).toLocaleString('id-ID'),
+      checklist, pubBg: ready ? 'var(--accent)' : 'var(--line-2)',
+      pubLabel: s.batch ? 'Jadwalkan ' + (s.batchList.length || '') + ' chapter' : s.pubMode === 'now' ? 'Publikasikan sekarang' : s.pubMode === 'draft' ? 'Simpan sebagai draft' : 'Jadwalkan chapter',
+      publish: () => {
+        if (!ready) return this.flash('Selesaikan dulu daftar cek');
+        if (s.batch) { this.setState(st => ({ uploads: [...st.batchList.map(b => ({ id: up.id, ch: b.n, by: 'Rina', st: 'Terjadwal', when: b.when })), ...st.uploads], batchList: [] })); return this.flash('Chapter batch dijadwalkan'); }
+        const stt = s.pubMode === 'now' ? 'Tayang' : s.pubMode === 'draft' ? 'Draft' : 'Terjadwal';
+        this.setState(st => ({ uploads: [{ id: up.id, ch: +st.upCh, by: 'Rina', st: stt, when: stt === 'Terjadwal' ? 'Jum 17 Okt 19.00' : 'hari ini ' + stamp }, ...st.uploads], comics: stt === 'Tayang' ? st.comics.map(c => c.id === up.id ? { ...c, ch: +st.upCh } : c) : st.comics, pages: [], thumb: 0, upCh: String(+st.upCh + 1), upName: '', upNote: '' }));
+        this.flash(stt === 'Tayang' ? 'Chapter ' + s.upCh + ' tayang' : stt === 'Draft' ? 'Draft disimpan' : 'Chapter ' + s.upCh + ' dijadwalkan Jumat 19.00');
+      },
+      saveDraft: () => this.flash('Draft disimpan'),
+      pvOpen: !!pvP, pv: pvP ? pageV(pvP, s.pv) : { bgImg: 'none' }, closePv: () => this.setState({ pv: null }),
+      pvPrev: () => this.setState(st => ({ pv: Math.max(0, st.pv - 1) })), pvNext: () => this.setState(st => ({ pv: Math.min(st.pages.length - 1, st.pv + 1) })),
+      pvThumb: () => { this.setState({ thumb: s.pv }); this.flash('Thumbnail chapter diganti'); },
+      pvDelete: () => this.setState(st => { const a = st.pages.filter((_, j) => j !== st.pv); return { pages: a, pv: a.length ? Math.min(st.pv, a.length - 1) : null, thumb: st.thumb >= a.length ? 0 : st.thumb }; }),
+      pvReplace: e => { const f = e.target.files && e.target.files[0]; if (!f) return; const url = URL.createObjectURL(f); this.setState(st => ({ pages: st.pages.map((p, j) => j === st.pv ? { ...p, url, name: f.name, kb: Math.round(f.size / 1024), lowres: 0, sig: 'r' + Date.now(), pct: 0 } : p) })); }
+    };
+  }
+  renderVals() {
+    const s = this.state, wide = s.w >= 900, allowed = ACCESS[s.role];
+    const sec = allowed.includes(s.sec) ? s.sec : null;
+    const comic = id => s.comics.find(c => c.id === id) || s.comics[0];
+    const navLabel = (NAV.find(n => n[0] === s.sec) || NAV[0])[1];
+    const seg = (key, label, opts) => ({ label, opts: opts.map(([v, l]) => ({ label: l, bg: s[key] === v ? 'var(--bg)' : 'transparent', fg: s[key] === v ? 'var(--ink)' : 'var(--ink-3)', onClick: () => this.setState({ [key]: v }) })) });
+    const flagged = s.comments.filter(c => !c.done && c.flags > 0);
+    const shownComments = (s.cTab === 'flagged' ? flagged : s.comments.filter(c => !c.done));
+    const titleList = s.comics.filter(c => (s.tf === 'Semua' || c.type === s.tf) && c.title.toLowerCase().includes(s.tq.toLowerCase()) && (s.role !== 'Uploader' || c.partner === 'Studio Kertas'));
+    const up = comic(s.upTitle);
+    const doneCount = s.pages.filter(p => p.pct >= 100).length;
+    const et = s.edit;
+    const today = 5;
+    const week = DAYS.map((d, i) => {
+      const items = s.comics.filter((c, j) => j % 7 === i && c.status === 'Berjalan').slice(0, 3).map((c, j) => ({ title: c.title, ch: c.ch + (i >= today - 1 ? 1 : 0), bg: col(c.h), time: ['19.00','12.00','21.00'][j % 3], st: i < today - 1 ? 'tayang' : i === today - 1 ? 'hari ini' : 'terjadwal', stColor: i < today - 1 ? 'var(--ink-3)' : i === today - 1 ? '#3E7BE6' : '#F2A93B' }));
+      return { name: d, date: `${6 + i} Okt`, items, bg: i === today - 1 ? 'var(--accent-soft)' : 'var(--surface)', border: i === today - 1 ? 'var(--accent)' : 'var(--line)' };
+    });
+    const tog = (on, fn) => ({ track: on ? '#3E7BE6' : 'var(--line-2)', justify: on ? 'flex-end' : 'flex-start', onClick: fn });
+    return {
+      theme: s.theme, wide, narrow: !wide, shellCols: wide ? '232px minmax(0,1fr)' : 'minmax(0,1fr)', pad: wide ? 32 : 16, drawerW: wide ? '480px' : '100%',
+      nav: NAV.filter(n => allowed.includes(n[0])).map(([k, l]) => ({ label: l, href: '#', fg: s.sec === k ? 'var(--ink)' : 'var(--ink-2)', bg: s.sec === k ? 'var(--surface-2)' : 'transparent', badge: k === 'comments' ? String(flagged.length || '') : k === 'reports' ? String(s.reports.filter(r => !r.fixed).length || '') : '', onClick: e => { e.preventDefault(); this.go(k); } })),
+      roles: ['Admin','Editor','Uploader'].map(x => ({ label: x, bg: s.role === x ? 'var(--surface)' : 'transparent', fg: s.role === x ? 'var(--ink)' : 'var(--ink-3)', onClick: () => this.setState({ role: x }) })),
+      who: s.role === 'Uploader' ? 'Studio Kertas (Uploader)' : s.role === 'Editor' ? 'Bagas (Editor)' : 'Rina (Admin)',
+      themeLabel: s.theme === 'light' ? 'Mode gelap' : 'Mode terang',
+      toggleTheme: () => { const th = s.theme === 'light' ? 'dark' : 'light'; localStorage.setItem('nacp-theme', th); this.setState({ theme: th }); },
+      crumb: 'Admin / ' + navLabel, secTitle: navLabel, noAccess: !sec,
+      sAds: sec === 'ads', ad: this.adVals(), sDashboard: sec === 'dashboard', sTitles: sec === 'titles', sUpload: sec === 'upload', sSchedule: sec === 'schedule', sUsers: sec === 'users', sComments: sec === 'comments', sPartners: sec === 'partners', sReports: sec === 'reports', sSite: sec === 'site',
+      kpis: [ { label:'Pembaca hari ini', value:'48,2rb', delta:'+6,2% vs kemarin', deltaColor:'#2FA67A' }, { label:'Chapter rilis minggu ini', value:'37', delta:'5 terjadwal hari ini', deltaColor:'var(--ink-3)' }, { label:'Pelanggan premium', value:'2.914', delta:'+118 bulan ini', deltaColor:'#2FA67A' }, { label:'Est. iklan · 7 hari', value:'Rp 16,3jt', delta:'lihat menu Iklan', deltaColor:'var(--accent-text)' } ],
+      todo: [  { label:'Komentar dilaporkan', sub:'Perlu dimoderasi', count: flagged.length, bg:'#D9534F', fg:'#fff', href:'#', onClick: e => { e.preventDefault(); this.go('comments'); } }, { label:'Laporan gambar error', sub:'Dari tombol "Laporkan" di reader', count: s.reports.filter(r => !r.fixed).length, bg:'#F2A93B', fg:'#16171A', href:'#', onClick: e => { e.preventDefault(); this.go('reports'); } }, { label:'Chapter tayang hari ini', sub:'Jumat, 19.00 WIB', count: week[today - 1].items.length, bg:'var(--accent)', fg:'#fff', href:'#', onClick: e => { e.preventDefault(); this.go('schedule'); } }, { label:'Request komik baru', sub:'Vote tertinggi 842', count: 4, bg:'var(--surface-2)', fg:'var(--ink)', href:'#', onClick: e => { e.preventDefault(); this.go('reports'); } } ],
+      topTitles: [...s.comics].sort((a, b) => b.v - a.v).slice(0, 6).map((c, i) => ({ title: c.title, rank: i + 1, bg: col(c.h), views: fmt(c.v * 7) })),
+      tq: s.tq, onTq: e => this.setState({ tq: e.target.value }),
+      typeFilters: ['Semua','Manga','Manhwa','Manhua','Lokal'].map(f => ({ label: f, bg: s.tf === f ? 'var(--ink)' : 'var(--surface)', fg: s.tf === f ? 'var(--bg)' : 'var(--ink-2)', onClick: () => this.setState({ tf: f }) })),
+      titleCards: titleList.map(c => ({ ...c, bg: col(c.h), statusBg: c.status === 'Berjalan' ? '#2FA67A' : c.status === 'Draft' ? '#6F737B' : '#3E7BE6', onOpen: () => this.setState({ edit: { ...c, genres: c.genres.slice() } }) })),
+      newTitle: () => this.setState({ edit: { id: 'baru', title: 'Judul baru', type: 'Lokal', genre: 'Fantasi', genres: [], ch: 0, v: 0, h: 120, partner: 'Studio Kertas', status: 'Draft', isNew: true } }),
+      titleDrawer: !!et, closeTitle: () => this.setState({ edit: null }),
+      et: et ? { ...et, heading: et.isNew ? 'Judul baru' : 'Edit · ' + et.title, bg: col(et.h), slug: et.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''), syn: et.isNew ? '' : `${et.title} adalah ${et.type === 'Lokal' ? 'komik lokal' : et.type.toLowerCase()} bergenre ${et.genre.toLowerCase()}.` } : { heading: '' },
+      etGenres: et ? GENRES.map(g => { const on = et.genres.includes(g); return { label: g, bg: on ? 'var(--accent-soft)' : 'var(--surface)', border: on ? 'var(--accent)' : 'var(--line)', fg: on ? 'var(--accent-text)' : 'var(--ink-2)', onClick: () => this.setState({ edit: { ...et, genres: on ? et.genres.filter(x => x !== g) : [...et.genres, g] } }) }; }) : [],
+      onEtTitle: e => this.setState({ edit: { ...et, title: e.target.value } }), onEtType: e => this.setState({ edit: { ...et, type: e.target.value } }), onEtStatus: e => this.setState({ edit: { ...et, status: e.target.value } }), onEtPartner: e => this.setState({ edit: { ...et, partner: e.target.value } }),
+      partnerNames: PARTNERS.map(p => p.name),
+      saveTitle: () => { this.setState(st => ({ comics: et.isNew ? [{ ...et, id: 'n' + Date.now(), isNew: false, genre: et.genres[0] || et.genre }, ...st.comics] : st.comics.map(c => c.id === et.id ? { ...et, genre: et.genres[0] || et.genre } : c), edit: null })); this.flash('Judul disimpan'); },
+      goUpload: () => { this.setState({ upTitle: et.id, upCh: String((et.ch || 0) + 1), edit: null }); this.go('upload'); },
+      ...this.uploadVals(wide, comic),
+      week,
+      users: s.users.map((u, i) => ({ ...u, initial: u.name[0].toUpperCase(), subColor: u.sub === 'Premium' ? 'var(--accent-text)' : 'var(--ink-3)', banLabel: u.banned ? 'Diblokir' : 'Aktif', banFg: u.banned ? '#D9534F' : '#2FA67A', onRole: e => this.setState(st => ({ users: st.users.map((x, j) => j === i ? { ...x, role: e.target.value } : x) })), onBan: () => this.setState(st => ({ users: st.users.map((x, j) => j === i ? { ...x, banned: !x.banned } : x) })) })),
+      cTabs: [['flagged', `Dilaporkan · ${flagged.length}`], ['all', 'Semua']].map(([k, l]) => ({ label: l, bg: s.cTab === k ? 'var(--ink)' : 'var(--surface)', fg: s.cTab === k ? 'var(--bg)' : 'var(--ink-2)', onClick: () => this.setState({ cTab: k }) })),
+      comments: shownComments.map(c => ({ ...c, bg: col((c.i * 61 + 200) % 360), flagged: c.flags > 0, flagLabel: `${c.flags} laporan`, border: c.flags > 0 ? '#D9534F' : 'var(--line)', onOk: () => this.setState(st => ({ comments: st.comments.map(x => x.i === c.i ? { ...x, flags: 0 } : x) })), onDel: () => { this.setState(st => ({ comments: st.comments.map(x => x.i === c.i ? { ...x, done: true } : x) })); this.flash('Komentar dihapus'); } })),
+      noComments: shownComments.length === 0,
+      partners: PARTNERS.map(p => { const ts = s.comics.filter(c => c.partner === p.name); return { ...p, titles: ts.length, covers: ts.slice(0, 4).map(c => col(c.h)) }; }),
+      reports: s.reports.map((r, i) => { const c = comic(r.id); return { ...r, title: c.title, bg: col(c.h), op: r.fixed ? 0.5 : 1, fixLabel: r.fixed ? 'Beres' : 'Tandai beres', fixFg: r.fixed ? '#2FA67A' : 'var(--ink)', onFix: () => this.setState(st => ({ reports: st.reports.map((x, j) => j === i ? { ...x, fixed: !x.fixed } : x) })) }; }),
+      requests: REQUESTS.map(q => ({ ...q, stColor: q.c })),
+      siteName: s.siteName, onSiteName: e => this.setState({ siteName: e.target.value }), accent: s.accent,
+      accents: ['#3E7BE6','#E2483D','#7C5CE0','#2FA67A'].map(c => ({ c, ring: s.accent === c ? 'var(--ink)' : 'transparent', onClick: () => this.setState({ accent: c }) })),
+      homeSecs: s.secs.map((x, i) => ({ label: x.l, n: i + 1, op: x.on ? 1 : 0.5, ...tog(x.on, () => this.setState(st => ({ secs: st.secs.map((y, j) => j === i ? { ...y, on: !y.on } : y) }))), onToggle: () => this.setState(st => ({ secs: st.secs.map((y, j) => j === i ? { ...y, on: !y.on } : y) })), onUp: () => this.setState(st => { if (!i) return null; const a = st.secs.slice(); [a[i - 1], a[i]] = [a[i], a[i - 1]]; return { secs: a }; }), onDown: () => this.setState(st => { if (i >= st.secs.length - 1) return null; const a = st.secs.slice(); [a[i + 1], a[i]] = [a[i], a[i + 1]]; return { secs: a }; }) })),
+      seoTitle: s.seoTitle, onSeoTitle: e => this.setState({ seoTitle: e.target.value }), seoPreview: s.seoTitle.replace('{judul}', 'Langit yang Retak').replace('{situs}', s.siteName),
+      seoToggles: [['sitemap','Sitemap otomatis (judul + chapter)'],['index','Izinkan mesin pencari mengindeks'],['schema','Structured data (ComicSeries / Chapter)']].map(([k, l]) => ({ label: l, ...tog(s.seo[k], () => this.setState(st => ({ seo: { ...st.seo, [k]: !st.seo[k] } }))) })),
+      saveSite: () => this.flash('Pengaturan situs disimpan'),
+      toast: s.toast
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<title>nacp</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root,[data-theme="light"]{--bg:#F6F6F4;--surface:#FFFFFF;--surface-2:#EFEFEC;--ink:#16171A;--ink-2:#50545D;--ink-3:#868A93;--line:#E3E3DF;--line-2:#CFCFCA;--accent:#3E7BE6;--accent-text:#2A62C9;--accent-soft:#E7EEFB}
+[data-theme="dark"]{--bg:#0F1013;--surface:#17191D;--surface-2:#1F2127;--ink:#ECEDEF;--ink-2:#A4A8B0;--ink-3:#6F737B;--line:#272A31;--line-2:#363A42;--accent:#3E7BE6;--accent-text:#86ABF2;--accent-soft:#1A2640}
+body{margin:0;background:#0F1013;font-family:'Plus Jakarta Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:var(--accent-text);text-decoration:none}a:hover{text-decoration:underline}
+*{box-sizing:border-box}
+input[type=range]{accent-color:#3E7BE6;width:100%}
+</style>
+</helmet>
+<div data-theme="{{ theme }}" style="min-height:100vh;background:{{ outerBg }};color:var(--ink);display:flex;justify-content:center">
+<div ref="{{ rootRef }}" data-screen-label="{{ screenLabel }}" style="width:100%;max-width:{{ frameMax }};background:var(--bg);min-height:100vh;display:flex;flex-direction:column;position:relative">
+
+<header style="position:sticky;top:0;z-index:30;background:var(--bg);border-bottom:1px solid var(--line)">
+  <div style="max-width:1440px;margin:0 auto;padding:12px {{ pad }}px;display:flex;align-items:center;gap:18px">
+    <a href="nacp%20Beranda.dc.html" style="display:flex;align-items:center;gap:8px;color:var(--ink);font-weight:800;font-size:23px;letter-spacing:-0.05em;text-decoration:none"><span style="width:11px;height:11px;background:var(--accent);border-radius:3px"></span>nacp</a>
+    <sc-if value="{{ desktop }}" hint-placeholder-val="{{ true }}">
+      <nav style="display:flex;gap:2px">
+        <sc-for list="{{ topNav }}" as="n" hint-placeholder-count="5">
+          <a href="{{ n.href }}" onClick="{{ n.onClick }}" style="padding:8px 12px;border-radius:8px;font-size:14px;font-weight:700;color:{{ n.fg }};background:{{ n.bg }};text-decoration:none;white-space:nowrap">{{ n.label }}</a>
+        </sc-for>
+      </nav>
+    </sc-if>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
+      <button onClick="{{ toggleLang }}" style="height:36px;min-width:42px;border:1px solid var(--line);background:var(--surface);color:var(--ink-2);border-radius:9px;font-family:'IBM Plex Mono',monospace;font-size:12px;cursor:pointer">{{ langLabel }}</button>
+      <button onClick="{{ toggleTheme }}" style="height:36px;padding:0 12px;border:1px solid var(--line);background:var(--surface);color:var(--ink-2);border-radius:9px;font:inherit;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap">{{ themeLabel }}</button>
+      <button onClick="{{ goProfile }}" style="width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:{{ avatarBg }};color:{{ avatarFg }};font:inherit;font-size:13px;font-weight:800;cursor:pointer">{{ avatar }}</button>
+    </div>
+  </div>
+</header>
+
+<main style="max-width:1440px;width:100%;margin:0 auto;padding:{{ mainTop }}px {{ pad }}px 56px;display:flex;flex-direction:column;gap:24px;flex:1">
+
+<sc-if value="{{ pJadwal }}" hint-placeholder-val="{{ true }}">
+  <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap">
+    <div><h1 style="margin:0;font-size:{{ h1 }}px;font-weight:800;letter-spacing:-0.04em">{{ t.schedule }}</h1><div style="font-size:14px;color:var(--ink-3);margin-top:4px">{{ t.scheduleSub }}</div></div>
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--ink-2)">{{ t.weekOf }}</div>
+  </div>
+  <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:4px">
+    <sc-for list="{{ dayTabs }}" as="d" hint-placeholder-count="7">
+      <button onClick="{{ d.onClick }}" style="flex:none;min-width:86px;padding:10px 14px;border-radius:12px;border:1px solid {{ d.border }};background:{{ d.bg }};color:{{ d.fg }};font:inherit;cursor:pointer;display:flex;flex-direction:column;align-items:flex-start;gap:2px">
+        <span style="font-size:15px;font-weight:800">{{ d.name }}</span>
+        <span style="font-size:11px;font-weight:600;opacity:0.8">{{ d.sub }}</span>
+      </button>
+    </sc-for>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax({{ gridMin }}px,1fr));gap:{{ gridGap }}px">
+    <sc-for list="{{ dayItems }}" as="c" hint-placeholder-count="8">
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <a href="{{ c.href }}" style="position:relative;display:block;aspect-ratio:3/4;border-radius:12px;overflow:hidden;background:repeating-linear-gradient(135deg,rgba(255,255,255,0.035) 0 10px,transparent 10px 20px),{{ c.bg }}">
+          <span style="position:absolute;left:8px;top:8px;padding:3px 7px;border-radius:6px;background:rgba(0,0,0,0.55);color:#fff;font-size:11px;font-weight:700">{{ c.typeLabel }}</span>
+          <div style="position:absolute;inset:auto 0 0 0;padding:30px 10px 10px;background:linear-gradient(180deg,rgba(0,0,0,0),rgba(0,0,0,0.85));color:#fff;display:flex;flex-direction:column;gap:4px">
+            <span style="align-self:flex-start;padding:3px 8px;border-radius:6px;background:{{ c.stBg }};color:{{ c.stFg }};font-size:11px;font-weight:800">{{ c.stLabel }}</span>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:12px">{{ c.timeLabel }}</span>
+          </div>
+        </a>
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
+          <div style="min-width:0"><div style="font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.title }}</div><div style="font-size:12px;color:var(--ink-3)">{{ c.genre }} · {{ c.partner }}</div></div>
+          <button onClick="{{ c.onBm }}" style="flex:none;height:30px;padding:0 10px;border-radius:8px;border:1px solid {{ c.bmBorder }};background:{{ c.bmBg }};color:{{ c.bmFg }};font:inherit;font-size:12px;font-weight:800;cursor:pointer">{{ c.bmLabel }}</button>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+  <sc-if value="{{ ads }}" hint-placeholder-val="{{ true }}">
+    <div style="align-self:center;width:100%;max-width:{{ adW }}px;height:{{ adH }}px;border:1px dashed var(--line-2);border-radius:8px;background:var(--surface);display:flex;align-items:center;justify-content:center;gap:10px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-3)"><span style="color:var(--ink-2);font-weight:500">{{ t.ad }}</span><span>{{ adSize }}</span><span>schedule_bottom</span></div>
+  </sc-if>
+</sc-if>
+
+<sc-if value="{{ pCari }}" hint-placeholder-val="{{ false }}">
+  <div style="display:flex;flex-direction:column;gap:14px">
+    <h1 style="margin:0;font-size:{{ h1 }}px;font-weight:800;letter-spacing:-0.04em">{{ t.browse }}</h1>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <input value="{{ q }}" onChange="{{ onQ }}" placeholder="{{ t.searchPh }}" style="flex:1;min-width:220px;height:48px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:12px;padding:0 16px;font:inherit;font-size:15px;outline:none"></input>
+      <select value="{{ sort }}" onChange="{{ onSort }}" style="height:48px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:12px;padding:0 12px;font:inherit;font-size:14px;font-weight:600"><sc-for list="{{ sortOpts }}" as="o" hint-placeholder-count="4"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select>
+      <sc-if value="{{ mobile }}" hint-placeholder-val="{{ false }}"><button onClick="{{ toggleFilter }}" style="height:48px;padding:0 16px;border:0;background:var(--ink);color:var(--bg);border-radius:12px;font:inherit;font-size:14px;font-weight:700;cursor:pointer">{{ filterBtn }}</button></sc-if>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:{{ cariCols }};gap:28px;align-items:start">
+    <sc-if value="{{ showFilters }}" hint-placeholder-val="{{ true }}">
+      <aside style="position:{{ filterPos }};top:84px;display:flex;flex-direction:column;gap:20px;padding:18px;border-radius:14px;background:var(--surface);border:1px solid var(--line)">
+        <sc-for list="{{ filterGroups }}" as="fg" hint-placeholder-count="3">
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="font-size:12px;font-weight:800;color:var(--ink-3);letter-spacing:0.03em">{{ fg.label }}</div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap">
+              <sc-for list="{{ fg.items }}" as="fi" hint-placeholder-count="5">
+                <button onClick="{{ fi.onClick }}" style="padding:6px 12px;border-radius:999px;border:1px solid {{ fi.border }};background:{{ fi.bg }};color:{{ fi.fg }};font:inherit;font-size:12px;font-weight:700;cursor:pointer">{{ fi.label }}</button>
+              </sc-for>
+            </div>
+          </div>
+        </sc-for>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div style="display:flex;justify-content:space-between;font-size:12px"><span style="font-weight:800;color:var(--ink-3);letter-spacing:0.03em">{{ t.minRating }}</span><span style="font-family:'IBM Plex Mono',monospace;color:var(--ink-2)">★ {{ minRLabel }}</span></div>
+          <input type="range" min="0" max="49" step="1" value="{{ minR }}" onChange="{{ onMinR }}"></input>
+        </div>
+        <button onClick="{{ resetFilters }}" style="height:38px;border:1px solid var(--line);background:var(--bg);color:var(--ink-2);border-radius:9px;font:inherit;font-size:13px;font-weight:700;cursor:pointer">{{ t.reset }}</button>
+      </aside>
+    </sc-if>
+    <div style="min-width:0;display:flex;flex-direction:column;gap:14px">
+      <div style="font-size:13px;color:var(--ink-3)">{{ resultLabel }}</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax({{ gridMin }}px,1fr));gap:{{ gridGap }}px">
+        <sc-for list="{{ results }}" as="c" hint-placeholder-count="12">
+          <sc-if value="{{ c.isAd }}" hint-placeholder-val="{{ false }}">
+            <div style="aspect-ratio:3/4;border:1px dashed var(--line-2);border-radius:12px;background:var(--surface);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-3)"><span style="color:var(--ink-2);font-weight:500">{{ t.sponsored }}</span><span>native</span><span>browse_native</span></div>
+          </sc-if>
+          <sc-if value="{{ c.isItem }}" hint-placeholder-val="{{ true }}">
+            <a href="{{ c.href }}" style="display:flex;flex-direction:column;gap:8px;color:var(--ink);text-decoration:none">
+              <div style="position:relative;aspect-ratio:3/4;border-radius:12px;overflow:hidden;background:repeating-linear-gradient(135deg,rgba(255,255,255,0.035) 0 10px,transparent 10px 20px),{{ c.bg }}">
+                <span style="position:absolute;left:8px;top:8px;padding:3px 7px;border-radius:6px;background:rgba(0,0,0,0.55);color:#fff;font-size:11px;font-weight:700">{{ c.typeLabel }}</span>
+                <span style="position:absolute;right:8px;top:8px;padding:3px 7px;border-radius:6px;background:rgba(0,0,0,0.55);color:#fff;font-size:11px;font-weight:700">★ {{ c.rating }}</span>
+                <span style="position:absolute;right:8px;bottom:8px;padding:3px 7px;border-radius:6px;background:{{ c.statusBg }};color:#fff;font-size:10px;font-weight:800">{{ c.statusLabel }}</span>
+              </div>
+              <div style="font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.title }}</div>
+              <div style="font-size:12px;color:var(--ink-3)">{{ c.genre }} · {{ c.chLabel }}</div>
+            </a>
+          </sc-if>
+        </sc-for>
+      </div>
+      <sc-if value="{{ noResults }}" hint-placeholder-val="{{ false }}">
+        <div style="padding:48px 20px;border:1px dashed var(--line-2);border-radius:14px;text-align:center;display:flex;flex-direction:column;gap:10px;align-items:center">
+          <div style="font-size:17px;font-weight:800">{{ t.noResult }}</div>
+          <div style="font-size:14px;color:var(--ink-3)">{{ t.noResultSub }}</div>
+          <button style="height:40px;padding:0 16px;border:0;background:var(--accent);color:#fff;border-radius:10px;font:inherit;font-size:13px;font-weight:700;cursor:pointer">{{ t.request }}</button>
+        </div>
+      </sc-if>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ pBookmark }}" hint-placeholder-val="{{ false }}">
+  <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap">
+    <div><h1 style="margin:0;font-size:{{ h1 }}px;font-weight:800;letter-spacing:-0.04em">{{ t.bookmarks }}</h1><div style="font-size:14px;color:var(--ink-3);margin-top:4px">{{ bmSub }}</div></div>
+    <button onClick="{{ toggleEdit }}" style="height:38px;padding:0 14px;border:1px solid var(--line);background:{{ editBg }};color:{{ editFg }};border-radius:10px;font:inherit;font-size:13px;font-weight:700;cursor:pointer">{{ editLabel }}</button>
+  </div>
+  <div style="display:flex;gap:6px;overflow-x:auto">
+    <sc-for list="{{ bmTabs }}" as="bt" hint-placeholder-count="3"><button onClick="{{ bt.onClick }}" style="height:36px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:{{ bt.bg }};color:{{ bt.fg }};font:inherit;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap">{{ bt.label }}</button></sc-for>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax({{ gridMin }}px,1fr));gap:{{ gridGap }}px">
+    <sc-for list="{{ bmList }}" as="c" hint-placeholder-count="8">
+      <div style="display:flex;flex-direction:column;gap:8px;position:relative">
+        <a href="{{ c.href }}" style="position:relative;display:block;aspect-ratio:3/4;border-radius:12px;overflow:hidden;background:repeating-linear-gradient(135deg,rgba(255,255,255,0.035) 0 10px,transparent 10px 20px),{{ c.bg }}">
+          <sc-if value="{{ c.hasNew }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;left:8px;top:8px;padding:3px 8px;border-radius:6px;background:var(--accent);color:#fff;font-size:11px;font-weight:800">{{ c.newLabel }}</span></sc-if>
+          <div style="position:absolute;inset:auto 0 0 0;padding:26px 10px 10px;background:linear-gradient(180deg,rgba(0,0,0,0),rgba(0,0,0,0.8));color:#fff">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;margin-bottom:6px">{{ c.progressLabel }}</div>
+            <div style="height:4px;border-radius:2px;background:rgba(255,255,255,0.25);overflow:hidden"><div style="height:100%;width:{{ c.pct }}%;background:#fff"></div></div>
+          </div>
+        </a>
+        <sc-if value="{{ editing }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ c.onRemove }}" style="position:absolute;right:8px;top:8px;width:32px;height:32px;border:0;border-radius:50%;background:#D9534F;color:#fff;font:inherit;font-size:16px;font-weight:800;cursor:pointer">×</button>
+        </sc-if>
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
+          <div style="min-width:0"><div style="font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.title }}</div><div style="font-size:12px;color:var(--ink-3)">{{ c.lastLabel }}</div></div>
+          <button onClick="{{ c.onNotif }}" title="notif" style="flex:none;height:28px;padding:0 8px;border-radius:7px;border:1px solid var(--line);background:var(--surface);color:{{ c.notifFg }};font:inherit;font-size:11px;font-weight:800;cursor:pointer">{{ c.notifLabel }}</button>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+  <sc-if value="{{ bmEmpty }}" hint-placeholder-val="{{ false }}">
+    <div style="padding:48px 20px;border:1px dashed var(--line-2);border-radius:14px;text-align:center;display:flex;flex-direction:column;gap:10px;align-items:center">
+      <div style="font-size:17px;font-weight:800">{{ t.bmEmpty }}</div>
+      <a href="#" onClick="{{ goCari }}" style="height:40px;padding:0 16px;background:var(--accent);color:#fff;border-radius:10px;font-size:13px;font-weight:700;display:flex;align-items:center;text-decoration:none">{{ t.browse }}</a>
+    </div>
+  </sc-if>
+</sc-if>
+
+<sc-if value="{{ pRiwayat }}" hint-placeholder-val="{{ false }}">
+  <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap">
+    <div><h1 style="margin:0;font-size:{{ h1 }}px;font-weight:800;letter-spacing:-0.04em">{{ t.history }}</h1><div style="font-size:14px;color:var(--ink-3);margin-top:4px">{{ histSub }}</div></div>
+    <button onClick="{{ clearHistory }}" style="height:38px;padding:0 14px;border:1px solid var(--line);background:var(--surface);color:var(--ink-2);border-radius:10px;font:inherit;font-size:13px;font-weight:700;cursor:pointer">{{ t.clear }}</button>
+  </div>
+  <sc-for list="{{ histGroups }}" as="g" hint-placeholder-count="2">
+    <section style="display:flex;flex-direction:column;gap:12px">
+      <div style="font-size:13px;font-weight:800;color:var(--ink-3);letter-spacing:0.02em">{{ g.label }}</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax({{ histMin }}px,1fr));gap:12px">
+        <sc-for list="{{ g.items }}" as="h" hint-placeholder-count="3">
+          <div style="display:flex;gap:14px;padding:10px;border-radius:14px;background:var(--surface);border:1px solid var(--line)">
+            <a href="{{ h.detail }}" style="width:96px;flex:none;aspect-ratio:3/4;border-radius:10px;background:repeating-linear-gradient(135deg,rgba(255,255,255,0.035) 0 8px,transparent 8px 16px),{{ h.bg }}"></a>
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px;justify-content:center">
+              <div style="font-size:16px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ h.title }}</div>
+              <div style="font-size:13px;color:var(--ink-2)">{{ h.where }}</div>
+              <div style="height:4px;border-radius:2px;background:var(--surface-2);overflow:hidden"><div style="height:100%;width:{{ h.pct }}%;background:var(--accent)"></div></div>
+              <div style="display:flex;gap:8px;align-items:center;margin-top:4px">
+                <a href="nacp%20Reader.dc.html" style="height:34px;padding:0 14px;border-radius:9px;background:var(--accent);color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;text-decoration:none">{{ h.cta }}</a>
+                <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-3)">{{ h.time }}</span>
+                <button onClick="{{ h.onRemove }}" style="margin-left:auto;border:0;background:transparent;color:var(--ink-3);font:inherit;font-size:12px;cursor:pointer">{{ t.remove }}</button>
+              </div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+  </sc-for>
+  <sc-if value="{{ histEmpty }}" hint-placeholder-val="{{ false }}">
+    <div style="padding:48px 20px;border:1px dashed var(--line-2);border-radius:14px;text-align:center;font-size:15px;color:var(--ink-3)">{{ t.histEmpty }}</div>
+  </sc-if>
+</sc-if>
+
+<sc-if value="{{ pProfil }}" hint-placeholder-val="{{ false }}">
+  <sc-if value="{{ loggedOut }}" hint-placeholder-val="{{ false }}">
+    <div style="max-width:420px;width:100%;margin:24px auto;padding:28px;border-radius:18px;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;gap:14px">
+      <div style="display:flex;background:var(--surface-2);border-radius:10px;padding:3px"><sc-for list="{{ authTabs }}" as="a" hint-placeholder-count="2"><button onClick="{{ a.onClick }}" style="flex:1;height:36px;border:0;border-radius:8px;background:{{ a.bg }};color:{{ a.fg }};font:inherit;font-size:13px;font-weight:700;cursor:pointer">{{ a.label }}</button></sc-for></div>
+      <h1 style="margin:4px 0 0;font-size:24px;font-weight:800;letter-spacing:-0.03em">{{ authTitle }}</h1>
+      <div style="font-size:13px;color:var(--ink-3);line-height:1.5">{{ t.authSub }}</div>
+      <button onClick="{{ login }}" style="height:46px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:11px;font:inherit;font-size:14px;font-weight:700;cursor:pointer">{{ t.google }}</button>
+      <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:var(--ink-3)"><span style="flex:1;height:1px;background:var(--line)"></span>{{ t.or }}<span style="flex:1;height:1px;background:var(--line)"></span></div>
+      <sc-if value="{{ isRegister }}" hint-placeholder-val="{{ false }}"><input placeholder="{{ t.username }}" style="height:46px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:11px;padding:0 14px;font:inherit;font-size:14px"></input></sc-if>
+      <input value="{{ email }}" onChange="{{ onEmail }}" placeholder="Email" style="height:46px;border:1px solid {{ emailBorder }};background:var(--bg);color:var(--ink);border-radius:11px;padding:0 14px;font:inherit;font-size:14px"></input>
+      <input type="password" value="{{ pw }}" onChange="{{ onPw }}" placeholder="{{ t.password }}" style="height:46px;border:1px solid {{ pwBorder }};background:var(--bg);color:var(--ink);border-radius:11px;padding:0 14px;font:inherit;font-size:14px"></input>
+      <sc-if value="{{ authErr }}" hint-placeholder-val="{{ false }}"><div style="font-size:12px;font-weight:600;color:#D9534F">{{ authErr }}</div></sc-if>
+      <button onClick="{{ submitAuth }}" style="height:48px;border:0;background:var(--accent);color:#fff;border-radius:11px;font:inherit;font-size:15px;font-weight:800;cursor:pointer">{{ authTitle }}</button>
+      <div style="font-size:12px;color:var(--ink-3);text-align:center">{{ t.noAccountNote }}</div>
+    </div>
+  </sc-if>
+  <sc-if value="{{ loggedIn }}" hint-placeholder-val="{{ true }}">
+    <div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap">
+      <div style="width:84px;height:84px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-size:32px;font-weight:800">R</div>
+      <div style="flex:1;min-width:200px"><h1 style="margin:0;font-size:{{ h1 }}px;font-weight:800;letter-spacing:-0.04em">raka.dibaca</h1><div style="font-size:13px;color:var(--ink-3);margin-top:4px">{{ memberLine }}</div></div>
+      <button onClick="{{ logout }}" style="height:38px;padding:0 14px;border:1px solid var(--line);background:var(--surface);color:var(--ink-2);border-radius:10px;font:inherit;font-size:13px;font-weight:700;cursor:pointer">{{ t.logout }}</button>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px">
+      <sc-for list="{{ profStats }}" as="ps" hint-placeholder-count="4">
+        <div style="padding:16px;border-radius:12px;background:var(--surface);border:1px solid var(--line)"><div style="font-size:24px;font-weight:800;letter-spacing:-0.03em">{{ ps.v }}</div><div style="font-size:12px;color:var(--ink-3);margin-top:2px">{{ ps.l }}</div></div>
+      </sc-for>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;align-items:start">
+      <div style="padding:22px;border-radius:16px;background:{{ premBg }};border:1px solid {{ premBorder }};display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px"><div style="font-size:20px;font-weight:800;letter-spacing:-0.02em">nacp Premium</div><div style="font-size:14px;font-weight:700;color:var(--ink-2)">Rp15.000<span style="font-size:12px;color:var(--ink-3)">{{ t.perMonth }}</span></div></div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <sc-for list="{{ perks }}" as="pk" hint-placeholder-count="4"><div style="display:flex;gap:10px;font-size:14px;color:var(--ink-2)"><span style="width:18px;height:18px;flex:none;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-size:11px;font-weight:800">✓</span>{{ pk }}</div></sc-for>
+        </div>
+        <sc-if value="{{ isPremium }}" hint-placeholder-val="{{ false }}"><div style="font-size:13px;font-weight:700;color:var(--accent-text)">{{ t.premActive }}</div></sc-if>
+        <button onClick="{{ openPay }}" style="height:46px;border:0;background:{{ premBtnBg }};color:{{ premBtnFg }};border-radius:11px;font:inherit;font-size:14px;font-weight:800;cursor:pointer">{{ premBtn }}</button>
+      </div>
+      <div style="padding:8px 20px;border-radius:16px;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column">
+        <sc-for list="{{ settings }}" as="st" hint-placeholder-count="5">
+          <button onClick="{{ st.onClick }}" style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 0;border:0;border-bottom:1px solid var(--line);background:transparent;color:var(--ink);font:inherit;text-align:left;cursor:pointer">
+            <span style="display:flex;flex-direction:column;gap:2px"><span style="font-size:14px;font-weight:700">{{ st.label }}</span><span style="font-size:12px;color:var(--ink-3)">{{ st.sub }}</span></span>
+            <span style="font-size:13px;font-weight:700;color:var(--accent-text);white-space:nowrap">{{ st.value }}</span>
+          </button>
+        </sc-for>
+      </div>
+    </div>
+  </sc-if>
+</sc-if>
+</main>
+
+<sc-if value="{{ payOpen }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ closePay }}" style="position:fixed;inset:0;z-index:60;background:rgba(0,0,0,0.5)"></div>
+  <div style="position:fixed;z-index:61;left:50%;top:50%;transform:translate(-50%,-50%);width:min(440px,calc(100% - 24px));max-height:calc(100vh - 40px);overflow-y:auto;padding:24px;border-radius:18px;background:var(--bg);border:1px solid var(--line);display:grid;grid-auto-rows:max-content;gap:14px">
+    <div style="display:flex;justify-content:space-between;align-items:center"><div style="font-size:18px;font-weight:800">{{ t.payTitle }}</div><button onClick="{{ closePay }}" style="width:32px;height:32px;border:0;border-radius:8px;background:var(--surface-2);color:var(--ink);font:inherit;font-size:16px;cursor:pointer">×</button></div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <sc-for list="{{ plans }}" as="pl" hint-placeholder-count="3">
+        <button onClick="{{ pl.onClick }}" style="display:flex;justify-content:space-between;align-items:center;padding:14px;border-radius:12px;border:2px solid {{ pl.border }};background:var(--surface);color:var(--ink);font:inherit;cursor:pointer;text-align:left">
+          <span style="display:flex;flex-direction:column;gap:2px"><span style="font-size:14px;font-weight:800">{{ pl.label }}</span><span style="font-size:12px;color:var(--ink-3)">{{ pl.sub }}</span></span>
+          <span style="font-size:15px;font-weight:800">{{ pl.price }}</span>
+        </button>
+      </sc-for>
+    </div>
+    <div style="font-size:12px;font-weight:800;color:var(--ink-3)">{{ t.payMethod }}</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+      <sc-for list="{{ methods }}" as="m" hint-placeholder-count="6">
+        <button onClick="{{ m.onClick }}" style="height:46px;border-radius:10px;border:2px solid {{ m.border }};background:var(--surface);color:var(--ink);font:inherit;font-size:13px;font-weight:700;cursor:pointer">{{ m.label }}</button>
+      </sc-for>
+    </div>
+    <button onClick="{{ pay }}" style="height:48px;border:0;background:var(--accent);color:#fff;border-radius:11px;font:inherit;font-size:15px;font-weight:800;cursor:pointer">{{ payBtn }}</button>
+    <div style="font-size:11px;color:var(--ink-3);text-align:center">{{ t.payNote }}</div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;left:50%;bottom:90px;transform:translateX(-50%);z-index:90;padding:10px 16px;border-radius:10px;background:#16171A;color:#fff;font-size:13px;font-weight:600">{{ toast }}</div>
+</sc-if>
+
+<sc-if value="{{ mobile }}" hint-placeholder-val="{{ false }}">
+  <div style="position:sticky;bottom:0;z-index:30;margin-top:auto">
+    <sc-if value="{{ ads }}" hint-placeholder-val="{{ true }}">
+      <div style="height:50px;display:flex;align-items:center;justify-content:center;gap:8px;background:var(--surface);border-top:1px dashed var(--line-2);font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--ink-3)"><span style="color:var(--ink-2);font-weight:500">{{ t.ad }}</span>320×50 · mobile_sticky</div>
+    </sc-if>
+    <nav style="display:grid;grid-template-columns:repeat(5,1fr);background:var(--bg);border-top:1px solid var(--line)">
+      <sc-for list="{{ bottomNav }}" as="b" hint-placeholder-count="5">
+        <a href="{{ b.href }}" onClick="{{ b.onClick }}" style="height:58px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;font-size:11px;font-weight:700;color:{{ b.fg }};text-decoration:none"><span style="width:18px;height:3px;border-radius:2px;background:{{ b.bar }}"></span>{{ b.label }}</a>
+      </sc-for>
+    </nav>
+  </div>
+</sc-if>
+</div>
+
+<div style="position:fixed;right:16px;top:72px;z-index:100;display:flex;gap:6px;align-items:center;padding:6px;border-radius:12px;background:#16171A;color:#fff;font-family:'IBM Plex Mono',monospace;font-size:11px;box-shadow:0 8px 24px rgba(0,0,0,.25)">
+  <button onClick="{{ toggleAds }}" style="height:28px;padding:0 10px;border:0;border-radius:7px;background:#2A2D33;color:#fff;font:inherit;cursor:pointer">{{ adsBtn }}</button>
+  <button onClick="{{ toggleFrame }}" style="height:28px;padding:0 10px;border:0;border-radius:7px;background:#2A2D33;color:#fff;font:inherit;cursor:pointer">{{ frameBtn }}</button>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;showAds&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;frame&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;auto&quot;,&quot;mobile&quot;],&quot;default&quot;:&quot;auto&quot;,&quot;tsType&quot;:&quot;'auto'|'mobile'&quot;}}">
+const COMICS = [
+  ['langit','Langit yang Retak','Lokal','Fantasi',128,84200,4.8,250,'Studio Kertas','Berjalan'],['pedang','Pedang Ketujuh','Manhwa','Aksi',342,71900,4.7,20,'Hanul Media','Berjalan'],['kedai','Kedai Teh Musim Gugur','Manga','Slice of life',61,40300,4.9,60,'Kumo Press','Tamat'],['raja','Raja Tanpa Mahkota','Manhua','Fantasi',915,66100,4.5,300,'Jade Lantern','Berjalan'],['sekolah','Sekolah Malam','Lokal','Horor',47,38800,4.6,160,'Studio Kertas','Berjalan'],['pemburu','Pemburu Level Nol','Manhwa','Aksi',210,59400,4.4,230,'Hanul Media','Berjalan'],['surat','Surat untuk Hana','Manga','Romansa',33,22700,4.8,350,'Kumo Press','Berjalan'],['gerbang','Gerbang Naga Giok','Manhua','Wuxia',588,31500,4.3,150,'Jade Lantern','Berjalan'],['ojek','Ojek Dimensi','Lokal','Komedi',72,27900,4.7,80,'Rumah Panel','Berjalan'],['mercusuar','Penjaga Mercusuar','Manga','Misteri',19,15200,4.6,210,'Kumo Press','Berjalan'],['istana','Istana Bayangan','Manhwa','Drama',156,33100,4.5,280,'Hanul Media','Tamat'],['koki','Koki Sang Kaisar','Manhua','Komedi',301,29800,4.4,40,'Jade Lantern','Berjalan'],['finis','Garis Finis','Manga','Olahraga',240,24600,4.7,190,'Kumo Press','Berjalan'],['kota','Kota Tanpa Hujan','Lokal','Sci-fi',12,9800,4.9,200,'Rumah Panel','Berjalan'],['menara','Pewaris Menara','Manhwa','Fantasi',98,20400,4.3,270,'Hanul Media','Berjalan'],['lentera','Lentera Merah','Manhua','Romansa',77,17300,4.5,10,'Jade Lantern','Berjalan'],['arus','Arus Balik','Lokal','Drama',8,6100,4.6,220,'Rumah Panel','Berjalan'],['bintang','Bintang Ruang Ganti','Manga','Olahraga',5,4800,4.4,100,'Kumo Press','Berjalan']
+].map(([id,title,type,genre,ch,v,r,h,partner,status], i) => ({ id, title, type, genre, ch, v, r, h, partner, status, day: i % 7, time: ['19.00','12.00','21.00','17.00'][i % 4], added: 18 - i }));
+const GENRES = ['Aksi','Fantasi','Romansa','Horor','Komedi','Drama','Slice of life','Misteri','Wuxia','Olahraga','Sci-fi'];
+const TODAY = 4;
+const T = {
+  id:{ home:'Beranda', schedule:'Jadwal Update', scheduleSub:'Chapter resmi tayang sesuai jadwal partner. Bookmark judul untuk dapat notifikasi.', weekOf:'6–12 Okt 2026', days:['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu'], today:'Hari ini', titles:n=>`${n} judul`, aired:'Sudah tayang', airsAt:'Tayang', upcoming:'Terjadwal', browse:'Daftar Komik', searchPh:'Cari judul, author, partner', sorts:[['pop','Terpopuler'],['upd','Update terbaru'],['rating','Rating tertinggi'],['new','Judul baru'],['az','A–Z']], type:'TIPE', genre:'GENRE', status:'STATUS', all:'Semua', ongoing:'Berjalan', done:'Tamat', minRating:'RATING MIN.', reset:'Reset filter', result:n=>`${n} judul ditemukan`, noResult:'Nggak ketemu', noResultSub:'Coba kata kunci lain, atau request judul ini ke tim nacp.', request:'Request komik', sponsored:'Bersponsor', ad:'IKLAN', bookmarks:'Bookmark', bmTabs:['Semua','Ada chapter baru','Selesai dibaca'], edit:'Edit', doneEdit:'Selesai', newCh:n=>`+${n} baru`, lastRead:(a,b)=>`Dibaca Ch ${a} dari ${b}`, notifOn:'Notif on', notifOff:'Notif off', bmEmpty:'Belum ada bookmark', history:'Riwayat Baca', histSub:'Tersimpan di perangkat ini dan akun kamu', clear:'Hapus riwayat', remove:'Hapus', resume:'Lanjut', groups:['Hari ini','Kemarin','Minggu ini'], page:(c,p,t)=>`Chapter ${c} · halaman ${p} dari ${t}`, histEmpty:'Riwayat kosong. Mulai baca dari beranda.', login:'Masuk', register:'Daftar', authSub:'Akun dipakai untuk sinkron bookmark dan riwayat di semua perangkat, serta langganan premium.', google:'Lanjut dengan Google', or:'atau', username:'Username', password:'Kata sandi', noAccountNote:'Tanpa akun kamu tetap bisa baca semua chapter gratis.', errEmail:'Email belum valid', errPw:'Kata sandi minimal 6 karakter', logout:'Keluar', member:'Bergabung Feb 2025', stats:['chapter dibaca','jam membaca','judul di-bookmark','komentar'], perMonth:'/bulan', perks:['Tanpa iklan di semua halaman','Early access chapter 1–7 hari lebih awal','Gambar HD tanpa batas','Download chapter untuk dibaca offline di webapp'], premActive:'Premium aktif sampai 10 Nov 2026', subscribe:'Langganan sekarang', manage:'Kelola langganan', set:[['Bahasa','Bahasa antarmuka'],['Tema','Gelap atau terang'],['Notifikasi','Push saat chapter baru dari bookmark'],['Pengaturan baca default','Mode, arah, latar, kualitas'],['Data & penyimpanan','Kualitas gambar dan download offline']], on:'Aktif', off:'Mati', payTitle:'Langganan Premium', plans:[['1 bulan','Tagih tiap bulan','Rp15.000'],['3 bulan','Hemat 11%','Rp40.000'],['12 bulan','Hemat 28%','Rp129.000']], payMethod:'METODE BAYAR', pay:'Bayar', payNote:'Bisa dibatalkan kapan saja. Iklan langsung hilang setelah pembayaran berhasil.', paid:'Pembayaran berhasil. Selamat datang di Premium!', welcome:'Berhasil masuk', bmAdded:'Ditambahkan ke bookmark', bmRemoved:'Dihapus dari bookmark', nav:['Beranda','Jadwal','Daftar Komik','Bookmark','Riwayat'], bn:['Beranda','Cari','Bookmark','Riwayat','Profil'], light:'Terang', dark:'Gelap' },
+  en:{ home:'Home', schedule:'Release Schedule', scheduleSub:'Official chapters go live on the partner’s schedule. Bookmark a title to get notified.', weekOf:'Oct 6–12, 2026', days:['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'], today:'Today', titles:n=>`${n} titles`, aired:'Out now', airsAt:'Airs', upcoming:'Scheduled', browse:'All Comics', searchPh:'Search title, author, partner', sorts:[['pop','Most popular'],['upd','Recently updated'],['rating','Top rated'],['new','Newest series'],['az','A–Z']], type:'TYPE', genre:'GENRE', status:'STATUS', all:'All', ongoing:'Ongoing', done:'Completed', minRating:'MIN. RATING', reset:'Reset filters', result:n=>`${n} titles found`, noResult:'Nothing found', noResultSub:'Try another keyword, or request this title from the nacp team.', request:'Request a comic', sponsored:'Sponsored', ad:'AD', bookmarks:'Bookmarks', bmTabs:['All','New chapters','Finished'], edit:'Edit', doneEdit:'Done', newCh:n=>`+${n} new`, lastRead:(a,b)=>`Read Ch ${a} of ${b}`, notifOn:'Notify on', notifOff:'Notify off', bmEmpty:'No bookmarks yet', history:'Reading History', histSub:'Saved on this device and your account', clear:'Clear history', remove:'Remove', resume:'Resume', groups:['Today','Yesterday','This week'], page:(c,p,t)=>`Chapter ${c} · page ${p} of ${t}`, histEmpty:'History is empty. Start reading from home.', login:'Log in', register:'Sign up', authSub:'Your account syncs bookmarks and history across devices and holds your premium subscription.', google:'Continue with Google', or:'or', username:'Username', password:'Password', noAccountNote:'You can read every chapter for free without an account.', errEmail:'Enter a valid email', errPw:'Password needs at least 6 characters', logout:'Log out', member:'Joined Feb 2025', stats:['chapters read','hours reading','titles bookmarked','comments'], perMonth:'/month', perks:['No ads on any page','Early access 1–7 days ahead','Unlimited HD images','Download chapters for offline reading in the webapp'], premActive:'Premium active until Nov 10, 2026', subscribe:'Subscribe now', manage:'Manage subscription', set:[['Language','Interface language'],['Theme','Dark or light'],['Notifications','Push when bookmarked titles update'],['Default reading settings','Mode, direction, background, quality'],['Data & storage','Image quality and offline downloads']], on:'On', off:'Off', payTitle:'Premium subscription', plans:[['1 month','Billed monthly','Rp15.000'],['3 months','Save 11%','Rp40.000'],['12 months','Save 28%','Rp129.000']], payMethod:'PAYMENT METHOD', pay:'Pay', payNote:'Cancel anytime. Ads disappear as soon as payment succeeds.', paid:'Payment successful. Welcome to Premium!', welcome:'Logged in', bmAdded:'Added to bookmarks', bmRemoved:'Removed from bookmarks', nav:['Home','Schedule','All Comics','Bookmarks','History'], bn:['Home','Search','Bookmarks','History','Profile'], light:'Light', dark:'Dark' }
+};
+const PAGES = ['jadwal','cari','bookmark','riwayat','profil'];
+const BEFORE = { langit:126, pedang:339, kedai:61, sekolah:44, raja:900, ojek:70, surat:33 };
+const HIST = [ ['langit',126,9,14,'21.42',0], ['pedang',339,22,22,'20.10',0], ['sekolah',44,6,18,'13.05',0], ['raja',900,30,30,'22.30',1], ['ojek',70,4,16,'07.55',1], ['kedai',61,24,24,'Sel',2], ['surat',33,12,20,'Sen',2] ];
+const fmt = n => n >= 1000 ? (n / 1000).toFixed(1).replace('.', ',') + 'rb' : String(n);
+const DETAIL = id => 'nacp%20Detail.dc.html?c=' + id;
+
+const store = { get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
+const DEFAULT_BM = ['langit','pedang','kedai','sekolah','raja','ojek','surat'];
+class Component extends DCLogic {
+  state = { theme: localStorage.getItem('nacp-theme') || 'dark', lang: localStorage.getItem('nacp-lang') || 'id', page: 'jadwal', w: 1280, ads: null, frame: null,
+    day: TODAY, bm: store.get('nacp-bm', DEFAULT_BM), notif: { langit: true, pedang: true, sekolah: true }, bmTab: 0, editing: false,
+    q: '', sort: 'pop', fType: 'Semua', fGenres: [], fStatus: 'Semua', minR: 0, filterOpen: false,
+    hist: store.get('nacp-hist', HIST), logged: store.get('nacp-logged', true), isRegister: false, email: '', pw: '', tried: false, premium: store.get('nacp-premium', false), payOpen: false, plan: 0, method: 'QRIS', toast: '',
+    prefs: { notif: true } };
+  rootRef = React.createRef();
+  componentDidMount() {
+    const p = new URLSearchParams(location.search).get('p'); if (PAGES.includes(p)) this.setState({ page: p });
+    this.measure = () => { const el = this.rootRef.current; this.setState({ w: el && el.clientWidth ? el.clientWidth : innerWidth }); };
+    this.measure(); setTimeout(this.measure, 50); addEventListener('resize', this.measure);
+  }
+  componentDidUpdate(pp, ps) {
+    const s = this.state;
+    if (ps && ps.bm !== s.bm) store.set('nacp-bm', s.bm);
+    if (ps && ps.hist !== s.hist) store.set('nacp-hist', s.hist);
+    if (ps && ps.logged !== s.logged) store.set('nacp-logged', s.logged);
+    if (ps && ps.premium !== s.premium) store.set('nacp-premium', s.premium);
+ const el = this.rootRef.current; if (el && el.clientWidth && Math.abs(el.clientWidth - this.state.w) > 2) this.setState({ w: el.clientWidth }); }
+  componentWillUnmount() { removeEventListener('resize', this.measure); }
+  go(p) { this.setState({ page: p, editing: false }); history.replaceState(null, '', '?p=' + p); scrollTo(0, 0); }
+  flash(m) { this.setState({ toast: m }); clearTimeout(this.tt); this.tt = setTimeout(() => this.setState({ toast: '' }), 2200); }
+  toggleBm(id) { const on = this.state.bm.includes(id); this.setState(s => ({ bm: on ? s.bm.filter(x => x !== id) : [...s.bm, id] })); this.flash(on ? T[this.state.lang].bmRemoved : T[this.state.lang].bmAdded); }
+  renderVals() {
+    const s = this.state, p = this.props, t = T[s.lang];
+    const ads0 = s.ads ?? p.showAds ?? true, ads = ads0 && !s.premium;
+    const frame = s.frame ?? p.frame ?? 'auto', mobile = frame === 'mobile' || s.w < 760;
+    const tl = ty => ty === 'Lokal' ? (s.lang === 'id' ? 'Lokal' : 'Local') : ty;
+    const byId = Object.fromEntries(COMICS.map(c => [c.id, c]));
+    const base = c => ({ ...c, href: DETAIL(c.id), bg: `oklch(0.42 0.09 ${c.h})`, typeLabel: tl(c.type), rating: c.r.toFixed(1), chLabel: `Ch ${c.ch}` });
+    const link = (k, i) => ({ href: k === 'home' ? 'nacp%20Beranda.dc.html' : '#', onClick: e => { if (k !== 'home') { e.preventDefault(); this.go(k); } } });
+    const topKeys = ['home','jadwal','cari','bookmark','riwayat'];
+    const chip = (on, onClick, label) => ({ label, onClick, bg: on ? 'var(--accent-soft)' : 'var(--bg)', border: on ? 'var(--accent)' : 'var(--line)', fg: on ? 'var(--accent-text)' : 'var(--ink-2)' });
+
+    const dayTabs = t.days.map((d, i) => { const a = s.day === i, cnt = COMICS.filter(c => c.day === i && c.status === 'Berjalan').length; return { name: mobile ? d.slice(0, 3) : d, sub: i === TODAY ? t.today : t.titles(cnt), bg: a ? 'var(--ink)' : 'var(--surface)', fg: a ? 'var(--bg)' : 'var(--ink)', border: i === TODAY && !a ? 'var(--accent)' : 'var(--line)', onClick: () => this.setState({ day: i }) }; });
+    const dayItems = COMICS.filter(c => c.day === s.day && c.status === 'Berjalan').map(c => { const aired = s.day < TODAY || (s.day === TODAY && c.time <= '17.00'); const isBm = s.bm.includes(c.id); return { ...base(c), stLabel: aired ? `${t.aired} · Ch ${c.ch}` : `${s.day === TODAY ? t.today : t.upcoming} · Ch ${c.ch + 1}`, stBg: aired ? 'rgba(255,255,255,0.2)' : 'var(--accent)', stFg: '#fff', timeLabel: `${t.airsAt} ${c.time} WIB`, bmLabel: isBm ? '✓' : '+', bmBg: isBm ? 'var(--accent-soft)' : 'var(--surface)', bmBorder: isBm ? 'var(--accent)' : 'var(--line)', bmFg: isBm ? 'var(--accent-text)' : 'var(--ink)', onBm: () => this.toggleBm(c.id) }; });
+
+    let res = COMICS.filter(c => (s.fType === 'Semua' || c.type === s.fType) && (s.fStatus === 'Semua' || c.status === s.fStatus) && (!s.fGenres.length || s.fGenres.includes(c.genre)) && c.r * 10 >= s.minR && (c.title + ' ' + c.partner).toLowerCase().includes(s.q.toLowerCase()));
+    const sorters = { pop: (a, b) => b.v - a.v, upd: (a, b) => a.day - b.day, rating: (a, b) => b.r - a.r, new: (a, b) => b.added - a.added, az: (a, b) => a.title.localeCompare(b.title) };
+    res = res.slice().sort(sorters[s.sort]).map(c => ({ ...base(c), isItem: true, isAd: false, statusLabel: c.status === 'Tamat' ? t.done : t.ongoing, statusBg: c.status === 'Tamat' ? '#3E7BE6' : 'rgba(0,0,0,0.55)' }));
+    const resCount = res.length;
+    if (ads && res.length > 6) res.splice(6, 0, { isAd: true, isItem: false });
+    const filterGroups = [
+      { label: t.type, items: ['Semua','Manga','Manhwa','Manhua','Lokal'].map(x => chip(s.fType === x, () => this.setState({ fType: x }), x === 'Semua' ? t.all : tl(x))) },
+      { label: t.status, items: [['Semua', t.all], ['Berjalan', t.ongoing], ['Tamat', t.done]].map(([v, l]) => chip(s.fStatus === v, () => this.setState({ fStatus: v }), l)) },
+      { label: t.genre, items: GENRES.map(g => chip(s.fGenres.includes(g), () => this.setState(st => ({ fGenres: st.fGenres.includes(g) ? st.fGenres.filter(x => x !== g) : [...st.fGenres, g] })), g)) }
+    ];
+    const activeFilters = (s.fType !== 'Semua') + (s.fStatus !== 'Semua') + s.fGenres.length + (s.minR > 0);
+
+    const prog = { ...BEFORE, ...store.get('nacp-progress', {}) };
+    const bmAll = s.bm.map(id => byId[id]).filter(Boolean).map(c => { const read = prog[c.id] || 0, nw = c.ch - read; return { ...base(c), read, nw }; });
+    const bmFiltered = bmAll.filter(c => s.bmTab === 0 || (s.bmTab === 1 ? c.nw > 0 : c.nw <= 0));
+    const bmList = bmFiltered.map(c => ({ ...c, hasNew: c.nw > 0, newLabel: t.newCh(c.nw), pct: Math.round(c.read / c.ch * 100), progressLabel: `Ch ${c.read} / ${c.ch}`, lastLabel: t.lastRead(c.read, c.ch), notifLabel: s.notif[c.id] ? t.notifOn : t.notifOff, notifFg: s.notif[c.id] ? 'var(--accent-text)' : 'var(--ink-3)', onNotif: () => this.setState(st => ({ notif: { ...st.notif, [c.id]: !st.notif[c.id] } })), onRemove: () => this.toggleBm(c.id) }));
+
+    const histGroups = [0, 1, 2].map(g => ({ label: t.groups[g], items: s.hist.filter(h => h[5] === g).map(([id, ch, pg, tot, time]) => { const c = byId[id]; const done = pg >= tot; return { title: c.title, detail: DETAIL(id), bg: `oklch(0.42 0.09 ${c.h})`, where: t.page(ch, pg, tot), pct: Math.round(pg / tot * 100), time, cta: done && ch < c.ch ? `${t.resume} Ch ${ch + 1}` : `${t.resume} Ch ${ch}`, onRemove: () => this.setState(st => ({ hist: st.hist.filter(x => !(x[0] === id && x[1] === ch)) })) }; }) })).filter(g => g.items.length);
+
+    const emailOk = /.+@.+\..+/.test(s.email), pwOk = s.pw.length >= 6;
+    const settingVals = [s.lang === 'id' ? 'Indonesia' : 'English', s.theme === 'dark' ? t.dark : t.light, s.prefs.notif ? t.on : t.off, '›', s.premium ? 'HD' : 'Auto'];
+    const settingClicks = [ () => { const l = s.lang === 'id' ? 'en' : 'id'; localStorage.setItem('nacp-lang', l); this.setState({ lang: l }); }, () => { const th = s.theme === 'light' ? 'dark' : 'light'; localStorage.setItem('nacp-theme', th); this.setState({ theme: th }); }, () => this.setState(st => ({ prefs: { ...st.prefs, notif: !st.prefs.notif } })), () => { location.href = 'nacp%20Reader.dc.html'; }, () => {} ];
+
+    return {
+      theme: s.theme, t, rootRef: this.rootRef, mobile, desktop: !mobile, ads,
+      screenLabel: ({ jadwal: 'Jadwal Update', cari: 'Daftar Komik', bookmark: 'Bookmark', riwayat: 'Riwayat', profil: 'Profil' })[s.page],
+      outerBg: frame === 'mobile' ? '#2A2C31' : 'var(--bg)', frameMax: frame === 'mobile' ? '390px' : '100%',
+      pad: mobile ? 14 : 32, mainTop: mobile ? 18 : 32, h1: mobile ? 28 : 40, gridMin: mobile ? 150 : 190, gridGap: mobile ? 12 : 18, histMin: mobile ? 280 : 380,
+      adW: mobile ? 320 : 728, adH: mobile ? 100 : 90, adSize: mobile ? '320×100' : '728×90',
+      topNav: topKeys.map((k, i) => ({ label: t.nav[i], ...link(k), fg: s.page === k ? 'var(--ink)' : 'var(--ink-3)', bg: s.page === k ? 'var(--surface-2)' : 'transparent' })),
+      bottomNav: ['home','cari','bookmark','riwayat','profil'].map((k, i) => ({ label: t.bn[i], ...link(k), fg: s.page === k ? 'var(--ink)' : 'var(--ink-3)', bar: s.page === k ? 'var(--accent)' : 'transparent' })),
+      avatar: s.logged ? 'R' : '?', avatarBg: s.logged ? 'var(--accent)' : 'var(--surface)', avatarFg: s.logged ? '#fff' : 'var(--ink-2)', goProfile: () => this.go('profil'),
+      pJadwal: s.page === 'jadwal', pCari: s.page === 'cari', pBookmark: s.page === 'bookmark', pRiwayat: s.page === 'riwayat', pProfil: s.page === 'profil',
+      dayTabs, dayItems,
+      q: s.q, onQ: e => this.setState({ q: e.target.value }), sort: s.sort, onSort: e => this.setState({ sort: e.target.value }), sortOpts: t.sorts.map(([v, l]) => ({ v, l })),
+      filterBtn: `Filter${activeFilters ? ' · ' + activeFilters : ''}`, toggleFilter: () => this.setState({ filterOpen: !s.filterOpen }),
+      showFilters: !mobile || s.filterOpen, filterPos: mobile ? 'static' : 'sticky', cariCols: mobile ? 'minmax(0,1fr)' : '280px minmax(0,1fr)',
+      filterGroups, minR: s.minR, minRLabel: s.minR ? (s.minR / 10).toFixed(1) : '0', onMinR: e => this.setState({ minR: +e.target.value }),
+      resetFilters: () => this.setState({ fType: 'Semua', fStatus: 'Semua', fGenres: [], minR: 0, q: '' }),
+      results: res, resultLabel: t.result(resCount), noResults: resCount === 0,
+      bmSub: `${bmAll.length} ${s.lang === 'id' ? 'judul' : 'titles'} · ${bmAll.filter(c => c.nw > 0).length} ${s.lang === 'id' ? 'ada chapter baru' : 'with new chapters'}`,
+      bmTabs: t.bmTabs.map((l, i) => ({ label: l, bg: s.bmTab === i ? 'var(--ink)' : 'var(--surface)', fg: s.bmTab === i ? 'var(--bg)' : 'var(--ink-2)', onClick: () => this.setState({ bmTab: i }) })),
+      bmList, bmEmpty: bmList.length === 0, editing: s.editing, toggleEdit: () => this.setState({ editing: !s.editing }),
+      editLabel: s.editing ? t.doneEdit : t.edit, editBg: s.editing ? 'var(--ink)' : 'var(--surface)', editFg: s.editing ? 'var(--bg)' : 'var(--ink)',
+      goCari: e => { e.preventDefault(); this.go('cari'); },
+      histGroups, histEmpty: histGroups.length === 0, histSub: t.histSub, clearHistory: () => this.setState({ hist: [] }),
+      loggedIn: s.logged, loggedOut: !s.logged, isRegister: s.isRegister, authTitle: s.isRegister ? t.register : t.login,
+      authTabs: [[false, t.login], [true, t.register]].map(([v, l]) => ({ label: l, bg: s.isRegister === v ? 'var(--bg)' : 'transparent', fg: s.isRegister === v ? 'var(--ink)' : 'var(--ink-3)', onClick: () => this.setState({ isRegister: v, tried: false }) })),
+      email: s.email, pw: s.pw, onEmail: e => this.setState({ email: e.target.value }), onPw: e => this.setState({ pw: e.target.value }),
+      emailBorder: s.tried && !emailOk ? '#D9534F' : 'var(--line)', pwBorder: s.tried && !pwOk ? '#D9534F' : 'var(--line)',
+      authErr: s.tried ? (!emailOk ? t.errEmail : !pwOk ? t.errPw : '') : '',
+      submitAuth: () => { if (!emailOk || !pwOk) return this.setState({ tried: true }); this.setState({ logged: true, tried: false }); this.flash(t.welcome); },
+      login: () => { this.setState({ logged: true }); this.flash(t.welcome); }, logout: () => this.setState({ logged: false, premium: false }),
+      memberLine: `${t.member}${s.premium ? ' · Premium' : ''}`,
+      profStats: [[fmt(1284), t.stats[0]], ['96', t.stats[1]], [String(s.bm.length), t.stats[2]], ['41', t.stats[3]]].map(([v, l]) => ({ v, l })),
+      perks: t.perks, isPremium: s.premium, premBg: s.premium ? 'var(--accent-soft)' : 'var(--surface)', premBorder: s.premium ? 'var(--accent)' : 'var(--line)',
+      premBtn: s.premium ? t.manage : t.subscribe, premBtnBg: s.premium ? 'var(--surface)' : 'var(--accent)', premBtnFg: s.premium ? 'var(--ink)' : '#fff',
+      openPay: () => s.premium ? this.flash(t.premActive) : this.setState({ payOpen: true }), closePay: () => this.setState({ payOpen: false }), payOpen: s.payOpen,
+      plans: t.plans.map(([l, sub, price], i) => ({ label: l, sub, price, border: s.plan === i ? 'var(--accent)' : 'var(--line)', onClick: () => this.setState({ plan: i }) })),
+      methods: ['QRIS','GoPay','OVO','DANA','ShopeePay','VA Bank'].map(m => ({ label: m, border: s.method === m ? 'var(--accent)' : 'var(--line)', onClick: () => this.setState({ method: m }) })),
+      payBtn: `${t.pay} ${t.plans[s.plan][2]} · ${s.method}`, pay: () => { this.setState({ premium: true, payOpen: false }); this.flash(t.paid); },
+      settings: t.set.map(([l, sub], i) => ({ label: l, sub, value: settingVals[i], onClick: settingClicks[i] })),
+      toast: s.toast,
+      langLabel: s.lang === 'id' ? 'ID' : 'EN', themeLabel: s.theme === 'light' ? t.dark : t.light,
+      toggleLang: settingClicks[0], toggleTheme: settingClicks[1],
+      adsBtn: ads0 ? 'iklan: on' : 'iklan: off', toggleAds: () => this.setState({ ads: !ads0 }),
+      frameBtn: frame === 'mobile' ? 'mobile' : 'desktop', toggleFrame: () => this.setState({ frame: frame === 'mobile' ? 'auto' : 'mobile' })
+    };
+  }
+}
+</script>
+</body>
+</html>

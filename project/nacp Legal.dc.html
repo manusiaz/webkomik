@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<title>nacp · Legal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root,[data-theme="light"]{--bg:#F6F6F4;--surface:#FFFFFF;--surface-2:#EFEFEC;--ink:#16171A;--ink-2:#50545D;--ink-3:#868A93;--line:#E3E3DF;--line-2:#CFCFCA;--accent:#3E7BE6;--accent-text:#2A62C9;--accent-soft:#E7EEFB}
+[data-theme="dark"]{--bg:#0F1013;--surface:#17191D;--surface-2:#1F2127;--ink:#ECEDEF;--ink-2:#A4A8B0;--ink-3:#6F737B;--line:#272A31;--line-2:#363A42;--accent:#3E7BE6;--accent-text:#86ABF2;--accent-soft:#1A2640}
+body{margin:0;background:#0F1013;font-family:'Plus Jakarta Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:var(--accent-text);text-decoration:none}a:hover{text-decoration:underline}
+*{box-sizing:border-box}
+</style>
+</helmet>
+<div ref="{{ rootRef }}" data-theme="{{ theme }}" data-screen-label="{{ label }}" style="min-height:100vh;background:var(--bg);color:var(--ink);display:flex;flex-direction:column">
+
+<header style="position:sticky;top:0;z-index:30;background:var(--bg);border-bottom:1px solid var(--line)">
+  <div style="max-width:1120px;margin:0 auto;padding:12px {{ pad }}px;display:flex;align-items:center;gap:16px">
+    <a href="nacp%20Landing.dc.html" style="display:flex;align-items:center;gap:8px;color:var(--ink);font-weight:800;font-size:23px;letter-spacing:-0.05em;text-decoration:none"><span style="width:11px;height:11px;background:var(--accent);border-radius:3px"></span>nacp</a>
+    <div style="margin-left:auto;display:flex;gap:8px">
+      <button onClick="{{ toggleTheme }}" style="height:36px;padding:0 12px;border:1px solid var(--line);background:var(--surface);color:var(--ink-2);border-radius:9px;font:inherit;font-size:13px;font-weight:600;cursor:pointer">{{ themeLabel }}</button>
+      <a href="nacp%20Beranda.dc.html" style="height:36px;padding:0 14px;border-radius:9px;background:var(--accent);color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;text-decoration:none">Mulai baca</a>
+    </div>
+  </div>
+</header>
+
+<main style="max-width:1120px;width:100%;margin:0 auto;padding:{{ top }}px {{ pad }}px 72px;display:grid;grid-template-columns:{{ cols }};gap:40px;align-items:start;flex:1">
+  <nav style="position:{{ navPos }};top:84px;display:flex;flex-direction:{{ navDir }};gap:4px;overflow-x:auto">
+    <sc-for list="{{ tabs }}" as="tb" hint-placeholder-count="3">
+      <a href="#" onClick="{{ tb.onClick }}" style="flex:none;padding:10px 12px;border-radius:9px;font-size:14px;font-weight:700;color:{{ tb.fg }};background:{{ tb.bg }};text-decoration:none;white-space:nowrap">{{ tb.label }}</a>
+    </sc-for>
+  </nav>
+
+  <article style="min-width:0;display:flex;flex-direction:column;gap:28px">
+    <div>
+      <h1 style="margin:0;font-size:{{ h1 }}px;font-weight:800;letter-spacing:-0.04em">{{ doc.title }}</h1>
+      <div style="margin-top:8px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--ink-3)">Berlaku sejak 1 Oktober 2026</div>
+      <p style="margin:16px 0 0;font-size:16px;line-height:1.7;color:var(--ink-2);max-width:68ch">{{ doc.intro }}</p>
+    </div>
+
+    <sc-if value="{{ hasToc }}" hint-placeholder-val="{{ true }}">
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <sc-for list="{{ sections }}" as="sc" hint-placeholder-count="6"><a href="{{ sc.anchor }}" style="padding:6px 11px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-size:12px;font-weight:700;color:var(--ink-2)">{{ sc.n }}. {{ sc.h }}</a></sc-for>
+      </div>
+      <sc-for list="{{ sections }}" as="sc" hint-placeholder-count="6">
+        <section id="{{ sc.id }}" style="display:flex;flex-direction:column;gap:10px;padding-top:6px;border-top:1px solid var(--line)">
+          <h2 style="margin:14px 0 0;font-size:20px;font-weight:800;letter-spacing:-0.02em"><span style="font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:500;color:var(--ink-3);margin-right:10px">{{ sc.n }}</span>{{ sc.h }}</h2>
+          <sc-for list="{{ sc.ps }}" as="pp" hint-placeholder-count="2"><p style="margin:0;font-size:15px;line-height:1.7;color:var(--ink-2);max-width:70ch;text-wrap:pretty">{{ pp }}</p></sc-for>
+        </section>
+      </sc-for>
+    </sc-if>
+
+    <sc-if value="{{ isReport }}" hint-placeholder-val="{{ false }}">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
+        <sc-for list="{{ steps }}" as="st" hint-placeholder-count="3">
+          <div style="padding:16px;border-radius:12px;background:var(--surface);border:1px solid var(--line)"><div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--accent-text)">{{ st.n }}</div><div style="font-size:15px;font-weight:800;margin-top:6px">{{ st.h }}</div><div style="font-size:13px;line-height:1.55;color:var(--ink-2);margin-top:4px">{{ st.b }}</div></div>
+        </sc-for>
+      </div>
+      <sc-if value="{{ sent }}" hint-placeholder-val="{{ false }}">
+        <div style="padding:24px;border-radius:16px;background:var(--accent-soft);border:1px solid var(--accent);display:flex;flex-direction:column;gap:8px">
+          <div style="font-size:18px;font-weight:800">Laporan diterima</div>
+          <div style="font-size:14px;line-height:1.6;color:var(--ink-2)">Nomor tiket <b style="font-family:'IBM Plex Mono',monospace;color:var(--ink)">{{ ticket }}</b>. Konfirmasi dikirim ke {{ f.email }}. Tim kami meninjau dalam 2 hari kerja; konten yang terbukti melanggar diturunkan paling lambat 24 jam setelah verifikasi.</div>
+          <button onClick="{{ reset }}" style="align-self:flex-start;margin-top:6px;height:38px;padding:0 14px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:9px;font:inherit;font-size:13px;font-weight:700;cursor:pointer">Kirim laporan lain</button>
+        </div>
+      </sc-if>
+      <sc-if value="{{ notSent }}" hint-placeholder-val="{{ true }}">
+        <div style="padding:22px;border-radius:16px;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;gap:16px">
+          <div style="font-size:17px;font-weight:800">Formulir laporan</div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <div style="font-size:12px;font-weight:700;color:var(--ink-2)">Kamu melapor sebagai</div>
+            <div style="display:flex;background:var(--surface-2);border-radius:9px;padding:3px;align-self:flex-start;flex-wrap:wrap">
+              <sc-for list="{{ roles }}" as="o" hint-placeholder-count="3"><button onClick="{{ o.onClick }}" style="height:32px;padding:0 12px;border:0;border-radius:7px;background:{{ o.bg }};color:{{ o.fg }};font:inherit;font-size:12px;font-weight:700;cursor:pointer">{{ o.label }}</button></sc-for>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px">
+            <sc-for list="{{ fields }}" as="fd" hint-placeholder-count="4">
+              <label style="display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:600;color:var(--ink-2)">{{ fd.label }}<input value="{{ fd.value }}" onChange="{{ fd.onChange }}" placeholder="{{ fd.ph }}" style="height:42px;border:1px solid {{ fd.border }};background:var(--bg);color:var(--ink);border-radius:9px;padding:0 12px;font:inherit;font-size:14px"></input></label>
+            </sc-for>
+          </div>
+          <label style="display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:600;color:var(--ink-2)">URL konten di nacp (satu per baris)<textarea rows="3" value="{{ f.urls }}" onChange="{{ onUrls }}" placeholder="https://nacp.id/komik/judul/chapter-12" style="border:1px solid {{ urlBorder }};background:var(--bg);color:var(--ink);border-radius:9px;padding:10px 12px;font-family:'IBM Plex Mono',monospace;font-size:12px;resize:vertical"></textarea></label>
+          <label style="display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:600;color:var(--ink-2)">Bukti kepemilikan hak<span style="display:flex;align-items:center;gap:10px;padding:14px;border-radius:10px;border:1px dashed var(--line-2);background:var(--bg);font-weight:500;color:var(--ink-3)">{{ fileLabel }}<span style="margin-left:auto;height:32px;padding:0 12px;border-radius:8px;background:var(--surface-2);color:var(--ink);font-weight:700;display:flex;align-items:center">Pilih file</span></span><input type="file" onChange="{{ onFile }}" style="display:none"></input></label>
+          <label style="display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:600;color:var(--ink-2)">Keterangan<textarea rows="3" value="{{ f.note }}" onChange="{{ onNote }}" placeholder="Jelaskan karya asli dan bagian yang dilanggar" style="border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:9px;padding:10px 12px;font:inherit;font-size:13px;resize:vertical"></textarea></label>
+          <button onClick="{{ toggleAgree }}" style="display:flex;gap:12px;align-items:flex-start;padding:0;border:0;background:transparent;color:var(--ink-2);font:inherit;font-size:13px;line-height:1.55;text-align:left;cursor:pointer">
+            <span style="width:20px;height:20px;flex:none;border-radius:6px;border:2px solid {{ agreeBorder }};background:{{ agreeBg }};color:#fff;display:grid;place-items:center;font-size:12px;font-weight:800">{{ agreeMark }}</span>
+            Saya menyatakan dengan itikad baik bahwa penggunaan konten di atas tidak diizinkan oleh pemilik hak, dan informasi dalam laporan ini akurat.
+          </button>
+          <sc-if value="{{ err }}" hint-placeholder-val="{{ false }}"><div style="font-size:13px;font-weight:600;color:#D9534F">{{ err }}</div></sc-if>
+          <button onClick="{{ submit }}" style="align-self:flex-start;height:46px;padding:0 22px;border:0;background:var(--accent);color:#fff;border-radius:11px;font:inherit;font-size:14px;font-weight:800;cursor:pointer">Kirim laporan</button>
+        </div>
+      </sc-if>
+      <div style="font-size:13px;color:var(--ink-3);line-height:1.6">Atau kirim email ke <a href="mailto:hakcipta@nacp.id" style="font-weight:700">hakcipta@nacp.id</a>. Keberatan atas penurunan konten (counter-notice) bisa dikirim ke alamat yang sama.</div>
+    </sc-if>
+  </article>
+</main>
+
+<footer style="border-top:1px solid var(--line);background:var(--surface)">
+  <div style="max-width:1120px;margin:0 auto;padding:20px {{ pad }}px;display:flex;gap:16px;flex-wrap:wrap;font-size:13px;color:var(--ink-3)">
+    <span>© 2026 nacp</span>
+    <sc-for list="{{ tabs }}" as="tb" hint-placeholder-count="3"><a href="#" onClick="{{ tb.onClick }}" style="color:var(--ink-2)">{{ tb.label }}</a></sc-for>
+    <a href="nacp%20Landing.dc.html" style="color:var(--ink-2);margin-left:auto">Tentang nacp</a>
+  </div>
+</footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const DOCS = {
+  syarat: { tab: 'Syarat Layanan', title: 'Syarat Layanan', intro: 'Dengan menggunakan nacp (situs, webapp, dan layanan terkait), kamu setuju dengan syarat berikut. Baca juga Kebijakan Privasi kami.', sections: [
+    ['Akun', ['Kamu bisa membaca tanpa akun. Akun diperlukan untuk sinkron bookmark, riwayat, komentar, dan Premium. Kamu bertanggung jawab menjaga keamanan kata sandi.', 'Satu orang satu akun. Kami dapat menangguhkan akun yang dipakai untuk spam, penipuan, atau pelanggaran syarat ini.']],
+    ['Konten dan lisensi', ['Semua komik di nacp dirilis atas izin publisher, studio, atau kreator. Hak cipta tetap milik pemegang hak masing-masing.', 'Kamu boleh membaca untuk keperluan pribadi. Kamu tidak boleh mengunduh massal, menyalin, mengunggah ulang, atau mendistribusikan halaman komik di luar fitur yang kami sediakan.']],
+    ['Premium dan pembayaran', ['Premium adalah langganan berulang (Rp15.000/bulan, atau paket 3 dan 12 bulan) yang menghilangkan iklan, membuka early access, gambar HD, dan unduhan offline.', 'Langganan diperpanjang otomatis sampai dibatalkan. Pembatalan berlaku di akhir periode berjalan. Dana tidak dikembalikan untuk periode yang sudah berjalan, kecuali diwajibkan hukum.']],
+    ['Iklan', ['Pengguna gratis melihat iklan dari jaringan pihak ketiga. Kami tidak bertanggung jawab atas isi situs yang dituju iklan; laporkan iklan yang menyesatkan lewat halaman kontak.']],
+    ['Komentar dan perilaku', ['Dilarang: spoiler tanpa tanda, ujaran kebencian, pelecehan, promosi situs bajakan, dan spam. Komentar yang melanggar dapat dihapus dan akun dapat diblokir.']],
+    ['Perubahan dan kontak', ['Kami dapat memperbarui syarat ini. Perubahan penting diumumkan di situs minimal 7 hari sebelum berlaku. Pertanyaan: halo@nacp.id.']]
+  ] },
+  privasi: { tab: 'Kebijakan Privasi', title: 'Kebijakan Privasi', intro: 'Halaman ini menjelaskan data apa yang kami kumpulkan, untuk apa, dan pilihan yang kamu punya. Disusun mengacu pada UU No. 27 Tahun 2022 tentang Pelindungan Data Pribadi.', sections: [
+    ['Data yang kami kumpulkan', ['Akun: email, username, dan kata sandi terenkripsi. Jika masuk dengan Google, kami menerima nama dan email.', 'Aktivitas baca: judul dan chapter yang dibuka, posisi halaman, bookmark, dan pengaturan baca, supaya bisa disinkronkan antar perangkat.', 'Teknis: alamat IP, jenis perangkat dan browser, serta log error untuk keamanan dan perbaikan layanan.']],
+    ['Untuk apa data dipakai', ['Menjalankan fitur (sinkron, notifikasi, rekomendasi berdasarkan riwayat), memproses pembayaran Premium, mencegah penyalahgunaan, dan menghitung statistik pembaca untuk bagi hasil partner dalam bentuk agregat.']],
+    ['Iklan dan cookie', ['Jaringan iklan (mis. Google AdSense, Monetag, Adsterra) dapat memakai cookie untuk menampilkan dan mengukur iklan. Kamu bisa menolak iklan personal lewat banner persetujuan; iklan tetap tampil tetapi tidak dipersonalisasi.', 'Pelanggan Premium tidak memuat script iklan.']],
+    ['Berbagi data', ['Kami tidak menjual data pribadi. Data dibagikan hanya ke penyedia yang membantu menjalankan layanan (hosting, CDN, pembayaran, email) dengan perjanjian kerahasiaan, atau jika diwajibkan hukum.']],
+    ['Hak kamu', ['Kamu dapat mengakses, memperbaiki, mengunduh, atau menghapus data akunmu dari halaman Profil atau lewat privasi@nacp.id. Permintaan diproses paling lama 3×24 jam kerja.', 'Riwayat baca bisa dihapus kapan saja dari halaman Riwayat.']],
+    ['Penyimpanan dan keamanan', ['Data disimpan selama akun aktif. Akun yang dihapus dibersihkan dalam 30 hari, kecuali data transaksi yang wajib disimpan sesuai aturan perpajakan.']]
+  ] },
+  hakcipta: { tab: 'Laporan Hak Cipta', title: 'Laporan Hak Cipta', intro: 'nacp hanya menayangkan karya berlisensi. Jika kamu pemegang hak atau kuasanya dan menemukan konten di nacp yang dipakai tanpa izin, laporkan di sini. Kami juga menerima laporan situs lain yang mengambil konten partner nacp.', sections: [] }
+};
+const ORDER = ['syarat', 'privasi', 'hakcipta'];
+
+class Component extends DCLogic {
+  state = { theme: localStorage.getItem('nacp-theme') || 'dark', page: 'syarat', w: 1280, role: 0, f: { name: '', email: '', work: '', org: '', urls: '', note: '' }, file: '', agree: false, tried: false, sent: false, ticket: '' };
+  rootRef = React.createRef();
+  componentDidMount() {
+    const p = new URLSearchParams(location.search).get('p'); if (ORDER.includes(p)) this.setState({ page: p });
+    this.measure = () => { const el = this.rootRef.current; this.setState({ w: el && el.clientWidth ? el.clientWidth : innerWidth }); };
+    this.measure(); setTimeout(this.measure, 50); addEventListener('resize', this.measure);
+  }
+  componentDidUpdate() { const el = this.rootRef.current; if (el && el.clientWidth && Math.abs(el.clientWidth - this.state.w) > 2) this.setState({ w: el.clientWidth }); }
+  componentWillUnmount() { removeEventListener('resize', this.measure); }
+  go(p) { this.setState({ page: p }); history.replaceState(null, '', '?p=' + p); scrollTo(0, 0); }
+  renderVals() {
+    const s = this.state, mobile = s.w < 820, doc = DOCS[s.page], f = s.f;
+    const set = k => e => this.setState({ f: { ...s.f, [k]: e.target.value } });
+    const emailOk = /.+@.+\..+/.test(f.email), urlOk = /nacp\.id|http/.test(f.urls);
+    const bad = (ok) => s.tried && !ok ? '#D9534F' : 'var(--line)';
+    const err = !s.tried ? '' : !f.name.trim() ? 'Isi nama lengkap' : !emailOk ? 'Email belum valid' : !f.work.trim() ? 'Isi judul karya asli' : !urlOk ? 'Cantumkan minimal satu URL konten' : !s.agree ? 'Centang pernyataan itikad baik' : '';
+    return {
+      theme: s.theme, rootRef: this.rootRef, label: doc.tab,
+      themeLabel: s.theme === 'light' ? 'Gelap' : 'Terang', toggleTheme: () => { const th = s.theme === 'light' ? 'dark' : 'light'; localStorage.setItem('nacp-theme', th); this.setState({ theme: th }); },
+      pad: mobile ? 16 : 32, top: mobile ? 20 : 48, h1: mobile ? 30 : 42,
+      cols: mobile ? 'minmax(0,1fr)' : '220px minmax(0,1fr)', navPos: mobile ? 'static' : 'sticky', navDir: mobile ? 'row' : 'column',
+      tabs: ORDER.map(k => ({ label: DOCS[k].tab, fg: s.page === k ? 'var(--ink)' : 'var(--ink-3)', bg: s.page === k ? 'var(--surface-2)' : 'transparent', onClick: e => { e.preventDefault(); this.go(k); } })),
+      doc, hasToc: doc.sections.length > 0, isReport: s.page === 'hakcipta',
+      sections: doc.sections.map(([h, ps], i) => ({ n: i + 1, h, ps, id: 's' + (i + 1), anchor: '#s' + (i + 1) })),
+      steps: [['01', 'Kirim laporan', 'Isi formulir dengan bukti kepemilikan dan URL konten.'], ['02', 'Verifikasi', 'Tim kami meninjau dan menghubungi partner terkait dalam 2 hari kerja.'], ['03', 'Tindakan', 'Konten yang melanggar diturunkan dan kamu menerima pemberitahuan.']].map(([n, h, b]) => ({ n, h, b })),
+      roles: ['Pemegang hak', 'Kuasa / agen', 'Pembaca (laporkan situs bajakan)'].map((l, i) => ({ label: l, bg: s.role === i ? 'var(--bg)' : 'transparent', fg: s.role === i ? 'var(--ink)' : 'var(--ink-3)', onClick: () => this.setState({ role: i }) })),
+      fields: [['name', 'Nama lengkap', '', !!f.name.trim()], ['email', 'Email', 'nama@perusahaan.com', emailOk], ['work', 'Judul karya asli', 'mis. Langit yang Retak', !!f.work.trim()], ['org', s.role === 1 ? 'Mewakili (pemegang hak)' : 'Perusahaan / studio (opsional)', '', true]].map(([k, label, ph, ok]) => ({ label, ph, value: f[k], onChange: set(k), border: bad(ok) })),
+      f, onUrls: set('urls'), onNote: set('note'), urlBorder: bad(urlOk),
+      fileLabel: s.file || 'PDF/JPG sertifikat, kontrak lisensi, atau surat kuasa', onFile: e => { const x = e.target.files && e.target.files[0]; if (x) this.setState({ file: x.name }); },
+      agreeBorder: s.agree ? 'var(--accent)' : s.tried ? '#D9534F' : 'var(--line-2)', agreeBg: s.agree ? 'var(--accent)' : 'transparent', agreeMark: s.agree ? '✓' : '', toggleAgree: () => this.setState({ agree: !s.agree }),
+      err, sent: s.sent, notSent: !s.sent, ticket: s.ticket,
+      submit: () => { const ok = f.name.trim() && emailOk && f.work.trim() && urlOk && s.agree; if (!ok) return this.setState({ tried: true }); this.setState({ sent: true, tried: false, ticket: 'HC-' + String(Date.now()).slice(-6) }); },
+      reset: () => this.setState({ sent: false, f: { name: '', email: '', work: '', org: '', urls: '', note: '' }, file: '', agree: false })
+    };
+  }
+}
+</script>
+</body>
+</html>
