@@ -1,0 +1,70 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+:root, [data-theme="light"] {
+  --bg: #F6F6F4; --surface: #FFFFFF; --surface-2: #EFEFEC;
+  --ink: #16171A; --ink-2: #50545D; --ink-3: #868A93;
+  --line: #E3E3DF; --line-2: #CFCFCA;
+  --accent: #3E7BE6; --accent-text: #2A62C9; --accent-soft: #E7EEFB;
+}
+[data-theme="dark"] {
+  --bg: #0F1013; --surface: #17191D; --surface-2: #1F2127;
+  --ink: #ECEDEF; --ink-2: #A4A8B0; --ink-3: #6F737B;
+  --line: #272A31; --line-2: #363A42;
+  --accent: #3E7BE6; --accent-text: #86ABF2; --accent-soft: #1A2640;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-line: var(--line);
+  --color-line-2: var(--line-2);
+  --color-accent: var(--accent);
+  --color-accent-text: var(--accent-text);
+  --color-accent-soft: var(--accent-soft);
+  --color-ok: #2FA67A;
+  --color-warn: #F2A93B;
+  --color-danger: #D9534F;
+  --font-sans: var(--font-jakarta), system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), monospace;
+  --radius-chip: 6px;
+  --radius-btn: 10px;
+  --radius-card: 12px;
+  --radius-panel: 16px;
+  --aspect-cover: 3 / 4;
+  --aspect-page: 800 / 1240;
+  --aspect-thumb: 16 / 10;
+}
+
+/* Breakpoints from the prototype's width rules: mobile <760, wide >=1100 */
+@theme {
+  --breakpoint-md: 760px;
+  --breakpoint-lg: 1100px;
+  --breakpoint-xl: 1240px;
+}
+
+@layer base {
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--accent-text); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+}
+
+/* Cover placeholder: hue per title, until real covers come from the CDN */
+@layer components {
+  .cover-ph {
+    background: repeating-linear-gradient(135deg, rgba(255,255,255,0.035) 0 10px, transparent 10px 20px), var(--ph);
+  }
+  .no-scrollbar { scrollbar-width: none; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+}
