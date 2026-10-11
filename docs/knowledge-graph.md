@@ -11,6 +11,11 @@ graph LR
     COMICS["lib/comics.ts<br/>COMICS(18) · routes · compact · coverBg"]
     STORE["lib/store.ts<br/>localStorage hooks"]
   end
+  subgraph Backend["Backend (Supabase)"]
+    DB["supabase/migrations/0001_init.sql<br/>profiles(role) · comics · chapters · bookmarks · reading_progress · comments · RLS"]
+    SB["lib/supabase/*<br/>client · server · getStaff()"]
+    PROXY["proxy.ts<br/>session refresh · /admin → /login"]
+  end
   UI["components/ui.tsx<br/>Logo · Cover · AdSlot · Segmented · Chip · Switch · BottomNav"]
   LAYOUT["app/layout.tsx + ThemeSync<br/>fonts · data-theme · lang"]
 
@@ -55,6 +60,13 @@ graph LR
 | `nacp-reader-v2` | `useStored` | panel pengaturan reader | reader |
 | `nacp-notif`, `nacp-prefs` | `useStored` | /bookmark, /profil | sama |
 
+## Auth & role
+
+- `/admin` dua lapis: `proxy.ts` (harus login) → `app/admin/page.tsx` cek `profiles.role` dari DB (admin/editor/uploader). Tanpa env Supabase = semua ditolak (fail closed).
+- Role cuma bisa diubah lewat `set_role()` (khusus admin) atau service role; trigger `protect_profile` memblok perubahan langsung dari API.
+- Admin pertama: daftar akun di Supabase Auth, lalu SQL `update profiles set role='admin' where id='<uid>'`.
+- Env: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (Vercel + `.env.local`).
+
 ## Aturan yang dipegang
 
 - Semua warna lewat token; tema = `data-theme` di `<html>`.
@@ -64,6 +76,7 @@ graph LR
 
 ## Belum ada (sengaja, bukan bagian desain)
 
-- Backend/API: auth, pembayaran, upload ke CDN, ad manager tersimpan. Semua masih mock/client state.
+- Halaman publik & panel admin masih baca data mock (`lib/comics.ts`, `app/admin/data.ts`), belum dari tabel Supabase.
+- Login pembaca di /profil, pembayaran Premium, upload ke Storage, ad manager tersimpan: belum.
 - Warna aksen dari Admin > Tampilan baru berlaku di preview admin, belum ke situs.
 - Gambar asli: cover/halaman masih placeholder → ganti `Cover` ke `next/image` saat CDN siap.

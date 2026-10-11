@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { cx } from '@/components/ui'
 import { useTheme } from '@/lib/store'
-import { ACCESS, ADMIN_COMICS, COMMENTS, NAV, REPORTS, ROLES, WHO, type Role, type SectionKey } from './data'
+import { ACCESS, ADMIN_COMICS, COMMENTS, NAV, REPORTS, ROLES, type Role, type SectionKey } from './data'
 import { Ads } from './sections/Ads'
 import { Comments } from './sections/Comments'
 import { Dashboard } from './sections/Dashboard'
@@ -14,10 +14,14 @@ import { Site } from './sections/Site'
 import { Titles } from './sections/Titles'
 import { Upload, type UploadTarget } from './sections/Upload'
 import { Users } from './sections/Users'
+import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
 
-export function Admin() {
+export function Admin({ me }: { me: { role: Role; name: string } }) {
+  const router = useRouter()
   const [theme, setTheme] = useTheme()
-  const [role, setRole] = useState<Role>('Admin')
+  const [role, setRole] = useState<Role>(me.role)
+  const signOut = async () => { await createClient().auth.signOut(); router.replace('/login') }
   const [sec, setSec] = useState<SectionKey>('dashboard')
   const [visited, setVisited] = useState<Set<SectionKey>>(() => new Set(['dashboard']))
   const [comics, setComics] = useState(ADMIN_COMICS)
@@ -77,15 +81,20 @@ export function Admin() {
           </button>
         ))}
         <div className="mt-auto flex flex-col gap-2 border-t border-line px-2.5 pt-3">
-          <div className="text-[11px] font-bold text-ink-3">Lihat sebagai</div>
-          <div className="flex rounded-lg bg-surface-2 p-[3px]">
-            {ROLES.map(r => (
-              <button key={r} onClick={() => setRole(r)} className={cx('h-7 flex-1 cursor-pointer rounded-md border-0 text-[11px] font-semibold', role === r ? 'bg-surface text-ink' : 'bg-transparent text-ink-3')}>{r}</button>
-            ))}
-          </div>
+          {me.role === 'Admin' && (
+            <>
+              <div className="text-[11px] font-bold text-ink-3">Lihat sebagai</div>
+              <div className="flex rounded-lg bg-surface-2 p-[3px]">
+                {ROLES.map(r => (
+                  <button key={r} onClick={() => setRole(r)} className={cx('h-7 flex-1 cursor-pointer rounded-md border-0 text-[11px] font-semibold', role === r ? 'bg-surface text-ink' : 'bg-transparent text-ink-3')}>{r}</button>
+                ))}
+              </div>
+            </>
+          )}
           <button onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')} className="h-[30px] cursor-pointer rounded-lg border border-line bg-bg text-xs font-semibold text-ink-2">
             {theme === 'light' ? 'Mode gelap' : 'Mode terang'}
           </button>
+          <button onClick={signOut} className="h-[30px] cursor-pointer rounded-lg border border-line bg-bg text-xs font-semibold text-ink-2">Keluar</button>
         </div>
       </aside>
 
@@ -100,7 +109,10 @@ export function Admin() {
             <div className="mb-1.5 font-mono text-[11px] text-ink-3">Admin / {label}</div>
             <h1 className="m-0 text-[26px] font-extrabold tracking-[-0.03em]">{label}</h1>
           </div>
-          <div className="text-xs text-ink-3">Masuk sebagai <b className="text-ink-2">{WHO[role]}</b></div>
+          <div className="flex items-center gap-3 text-xs text-ink-3">
+            <span>Masuk sebagai <b className="text-ink-2">{me.name}</b> ({role})</span>
+            <button onClick={signOut} className="cursor-pointer rounded-md border border-line bg-surface px-2.5 py-1 text-xs font-semibold text-ink-2 min-[900px]:hidden">Keluar</button>
+          </div>
         </div>
 
         {NAV.map(([k]) => visited.has(k) && (
