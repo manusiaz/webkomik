@@ -12,7 +12,7 @@ graph LR
     STORE["lib/store.ts<br/>localStorage hooks"]
   end
   subgraph Backend["Backend (Supabase)"]
-    DB["supabase/migrations/0001_init.sql<br/>profiles(role) · comics · chapters · bookmarks · reading_progress · comments · RLS"]
+    DB["supabase/migrations/0001_init.sql<br/>nacp_profiles(role) · nacp_comics · nacp_chapters · nacp_bookmarks · nacp_reading_progress · nacp_comments · RLS"]
     SB["lib/supabase/*<br/>client · server · getStaff()"]
     PROXY["proxy.ts<br/>session refresh · /admin → /login"]
   end
@@ -62,10 +62,11 @@ graph LR
 
 ## Auth & role
 
-- `/admin` dua lapis: `proxy.ts` (harus login) → `app/admin/page.tsx` cek `profiles.role` dari DB (admin/editor/uploader). Tanpa env Supabase = semua ditolak (fail closed).
-- Role cuma bisa diubah lewat `set_role()` (khusus admin) atau service role; trigger `protect_profile` memblok perubahan langsung dari API.
-- Admin pertama: daftar akun di Supabase Auth, lalu SQL `update profiles set role='admin' where id='<uid>'`.
-- Project Supabase: `cbn-commercial-hub` (llynyfneqgmoapusbsix), numpang — tabel nacp di schema public. Kalau CBN mulai pakai project ini, pindahkan nacp ke project sendiri.
+- `/admin` dua lapis: `proxy.ts` (harus login) → `app/admin/page.tsx` cek `nacp_profiles.role` dari DB (admin/editor/uploader). Tanpa env Supabase = semua ditolak (fail closed).
+- Role cuma bisa diubah lewat `nacp_set_role()` (khusus admin) atau service role; trigger `nacp_protect_profile` memblok insert/update role & premium dari API.
+- Profil nacp dibuat saat login pertama di /login (upsert), bukan trigger di `auth.users` — signup CBN tidak menyentuh nacp.
+- Admin pertama: buat user di Supabase Auth, lalu SQL `insert into nacp_profiles (id, role) values ('<uid>','admin') on conflict (id) do update set role='admin'`.
+- Project Supabase: `cbn-commercial-hub` (llynyfneqgmoapusbsix), numpang — semua objek nacp berawalan `nacp_` (tabel, fungsi, policy, index), terpisah dari CBN. Kalau CBN mulai pakai project ini, pindahkan nacp ke project sendiri.
 - Env: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (Vercel + `.env.local`).
 
 ## Aturan yang dipegang

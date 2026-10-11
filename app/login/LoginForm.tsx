@@ -22,7 +22,10 @@ export function LoginForm({ next, err }: { next: string; err?: string }) {
     if (err === 'config') return
     setBusy(true)
     setMsg('')
-    const { error } = await createClient().auth.signInWithPassword({ email, password: pw })
+    const supabase = createClient()
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password: pw })
+    // nacp profile is created lazily on first sign-in (the auth project is shared with CBN)
+    if (data.user) await supabase.from('nacp_profiles').upsert({ id: data.user.id }, { onConflict: 'id', ignoreDuplicates: true })
     setBusy(false)
     if (error) return setMsg(error.message === 'Invalid login credentials' ? 'Email atau kata sandi salah.' : error.message || 'Gagal terhubung ke server. Coba lagi.')
     router.replace(next)

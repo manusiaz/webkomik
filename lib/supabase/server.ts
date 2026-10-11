@@ -27,7 +27,7 @@ export async function getStaff() {
   const { data } = await supabase.auth.getClaims()
   const uid = data?.claims?.sub
   if (!uid) return null
-  const { data: profile } = await supabase.from('profiles').select('role, display_name').eq('id', uid).single()
+  const { data: profile } = await supabase.from('nacp_profiles').select('role, display_name').eq('id', uid).single()
   if (!profile || !STAFF.includes(profile.role)) return { uid, email: data.claims.email as string, role: null }
   return { uid, email: data.claims.email as string, role: profile.role as StaffRole, name: (profile.display_name as string | null) ?? (data.claims.email as string) }
 }
