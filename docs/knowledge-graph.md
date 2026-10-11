@@ -64,7 +64,7 @@ graph LR
 
 - `/admin` dua lapis: `proxy.ts` (harus login) → `app/admin/page.tsx` cek `nacp_profiles.role` dari DB (admin/editor/uploader). Tanpa env Supabase = semua ditolak (fail closed).
 - Role cuma bisa diubah lewat `nacp_set_role()` (khusus admin) atau service role; trigger `nacp_protect_profile` memblok insert/update role & premium dari API.
-- Profil nacp dibuat saat login pertama di /login (upsert), bukan trigger di `auth.users` — signup CBN tidak menyentuh nacp.
+- Akun nacp = punya baris `nacp_profiles`. Login tanpa baris itu (mis. user CBN) langsung di-signOut: "Akun ini bukan akun nacp". Tidak ada trigger di `auth.users`; profil pembaca nanti dibuat oleh alur daftar nacp.
 - Admin pertama: buat user di Supabase Auth, lalu SQL `insert into nacp_profiles (id, role) values ('<uid>','admin') on conflict (id) do update set role='admin'`.
 - Project Supabase: `cbn-commercial-hub` (llynyfneqgmoapusbsix), numpang — semua objek nacp berawalan `nacp_` (tabel, fungsi, policy, index), terpisah dari CBN. Kalau CBN mulai pakai project ini, pindahkan nacp ke project sendiri.
 - Env: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (Vercel + `.env.local`).
