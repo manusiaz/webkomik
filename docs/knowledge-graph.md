@@ -65,6 +65,7 @@ graph LR
 - `/admin` dua lapis: `proxy.ts` (harus login) → `app/admin/page.tsx` cek `profiles.role` dari DB (admin/editor/uploader). Tanpa env Supabase = semua ditolak (fail closed).
 - Role cuma bisa diubah lewat `set_role()` (khusus admin) atau service role; trigger `protect_profile` memblok perubahan langsung dari API.
 - Admin pertama: daftar akun di Supabase Auth, lalu SQL `update profiles set role='admin' where id='<uid>'`.
+- Project Supabase: `cbn-commercial-hub` (llynyfneqgmoapusbsix), numpang — tabel nacp di schema public. Kalau CBN mulai pakai project ini, pindahkan nacp ke project sendiri.
 - Env: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (Vercel + `.env.local`).
 
 ## Aturan yang dipegang

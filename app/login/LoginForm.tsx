@@ -24,7 +24,7 @@ export function LoginForm({ next, err }: { next: string; err?: string }) {
     setMsg('')
     const { error } = await createClient().auth.signInWithPassword({ email, password: pw })
     setBusy(false)
-    if (error) return setMsg(error.message === 'Invalid login credentials' ? 'Email atau kata sandi salah.' : error.message)
+    if (error) return setMsg(error.message === 'Invalid login credentials' ? 'Email atau kata sandi salah.' : error.message || 'Gagal terhubung ke server. Coba lagi.')
     router.replace(next)
     router.refresh()
   }
